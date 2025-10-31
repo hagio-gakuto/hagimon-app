@@ -1,25 +1,22 @@
 "use client";
-import Image from "next/image";
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [data, setData] = useState<string>("");
+
   useEffect(() => {
-    console.log("fetching");
-    try {
-      async function fetchData() {
-        const response = await fetch("http://localhost:3001");
-        console.log(await response.text());
-      }
-      fetchData();
-    } catch (error) {
-      console.error("Fetch error:", error);
-    } finally {
-      console.log("fetching completed");
+    async function fetchData() {
+      console.log("fetching");
+      const response = await fetch("http://localhost:3001");
+      setData(await response.text());
     }
+    fetchData();
   }, []);
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <p>Hello World</p>
+      <p className="text-2xl font-bold">Hello World</p>
+      <p className="text-2xl font-bold">{data}</p>
     </div>
   );
 }

@@ -3,7 +3,7 @@
   "files.eol": "\n",
   "files.insertFinalNewline": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "eslint.validate": ["javascript", "typescript", "typescriptreact"],
   "typescript.tsdk": "node_modules/typescript/lib",
