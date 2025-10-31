@@ -1,4 +1,4 @@
-# REC-DX-STUDY: 仮想マッチングアプリ 💘
+# はぎもん: 仮想マッチングアプリ 💘
 
 このプロジェクトは、モダンな技術スタックを用いた Web アプリケーション開発の実践的な学習の場として構築された、仮想マッチングアプリケーションです。
 
@@ -14,7 +14,7 @@
 
 #### **設計原則の実践**
 
-SOLID 原則や DRY 原則を意識したコーディングを実践します。
+オブジェクト指向プログラミングの原則を意識したコーディングを実践します。
 
 - **SOLID 原則**: オブジェクト指向設計における 5 つの重要な原則です。保守性が高く、柔軟なソフトウェアを構築するための指針となります。
 
@@ -27,15 +27,7 @@ SOLID 原則や DRY 原則を意識したコーディングを実践します。
 
 - **DRY 原則**: "Don't Repeat Yourself"（繰り返しを避ける）の略です。同じ情報やロジックが複数の場所に存在することを避け、コードの重複をなくすことを目指します。これにより、変更が容易でバグの少ない、保守性の高いコードを実現できます。
 
-#### **DDD への理解**
-
-ドメイン駆動設計（DDD）の考え方を学び、実装に取り入れます。特に、関心事を分離するレイヤードアーキテクチャを意識して開発を進めます。
-
-- **参考レイヤ構成**:
-  - **Presentation Layer (UI 層)**: ユーザーへの情報表示と解釈を担当 (React コンポーネント)。
-  - **Application Layer (応用層)**: ユースケースを実現する層。ドメイン層のオブジェクトを使い、タスクを調整します (NestJS の Service など)。
-  - **Domain Layer (ドメイン層)**: ビジネスロジックの中核。エンティティや値オブジェクトなど、ドメインの関心事を表現します。
-  - **Infrastructure Layer (インフラ層)**: データベース、外部 API など、技術的な詳細を実装する層 (Prisma による DB アクセスなど)。
+- **KISS 原則**: "Keep It Simple, Stupid"（シンプルに保つ）の略です。必要以上に複雑にしないことを重視します。理解しやすく、メンテナンスしやすいコードを書くことで、開発効率を向上させます。
 
 ### ⚛️ React のベストプラクティス習得
 
@@ -71,11 +63,10 @@ React の思想を深く理解し、モダンなフロントエンド開発ス�
 
 ## 🛠️ 技術スタック
 
-- **フロントエンド**: React Router (Remix), Vite, Chakra UI, TypeScript
+- **フロントエンド**: Next.js, React, TailwindCSS, TypeScript
 - **バックエンド**: NestJS, Prisma, TypeScript
 - **データベース**: PostgreSQL
 - **インフラ**: Docker
-- **モノレポ管理**: **Yarn Workspaces**
 
 ---
 
@@ -97,7 +88,7 @@ Docker Compose を使用して、フロントエンド、バックエンド、Po
 ```bash
 # 1. リポジトリをクローン
 git clone <your-repo-url>
-cd rec-dx-study
+cd hagimon-app
 
 # 2. 一発セットアップ（ビルド、起動、マイグレーション）
 make init
@@ -108,7 +99,7 @@ make init
 ```powershell
 # 1. リポジトリをクローン
 git clone <your-repo-url>
-cd rec-dx-study
+cd hagimon-app
 
 # 2. 一発セットアップ（ビルド、起動、マイグレーション）
 .\make init
@@ -119,7 +110,7 @@ cd rec-dx-study
 ```bash
 # 1. リポジトリをクローン
 git clone <your-repo-url>
-cd rec-dx-study
+cd hagimon-app
 
 # 2. 全サービスを起動（一発で環境構築完了！）
 docker-compose up -d

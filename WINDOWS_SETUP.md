@@ -18,7 +18,7 @@ Windowsでは`make`コマンドが標準では利用できないため、PowerSh
 
 ```powershell
 git clone <your-repo-url>
-cd rec-dx-study
+cd hagimon-app
 ```
 
 ### 2. 初回セットアップ
