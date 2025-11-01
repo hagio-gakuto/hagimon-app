@@ -15,6 +15,7 @@
     "prisma": "prisma",
     "generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
+    "seed": "ts-node prisma/seed.ts",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
