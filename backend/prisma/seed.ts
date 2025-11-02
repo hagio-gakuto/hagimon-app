@@ -20,7 +20,6 @@ async function main() {
         imageUrl: 'https://via.placeholder.com/200x200?text=Yamada',
         introduction: 'フロントエンドエンジニアとして3年目。ReactとTypeScriptが得意です。',
         yearsOfExperience: 3,
-        programmingLevel: '中級',
         techSkills: ['JavaScript', 'TypeScript', 'React', 'Next.js'],
       },
       {
@@ -30,7 +29,6 @@ async function main() {
         imageUrl: 'https://via.placeholder.com/200x200?text=Sato',
         introduction: 'バックエンドエンジニアとして5年目の経験があります。',
         yearsOfExperience: 5,
-        programmingLevel: '上級',
         techSkills: ['Java', 'Spring Boot', 'PostgreSQL', 'Docker'],
       },
       {
@@ -40,7 +38,6 @@ async function main() {
         imageUrl: 'https://via.placeholder.com/200x200?text=Suzuki',
         introduction: 'フルスタックエンジニアとして幅広い技術を扱っています。',
         yearsOfExperience: 4,
-        programmingLevel: '中級',
         techSkills: ['Python', 'Django', 'Vue.js', 'AWS'],
       },
       {
@@ -50,7 +47,6 @@ async function main() {
         imageUrl: 'https://via.placeholder.com/200x200?text=Takahashi',
         introduction: 'モバイルアプリ開発に興味があります。',
         yearsOfExperience: 2,
-        programmingLevel: '初級',
         techSkills: ['Swift', 'iOS', 'SwiftUI'],
       },
       {
@@ -60,7 +56,6 @@ async function main() {
         imageUrl: 'https://via.placeholder.com/200x200?text=Ito',
         introduction: 'インフラエンジニアとして、クラウド技術に詳しいです。',
         yearsOfExperience: 7,
-        programmingLevel: '上級',
         techSkills: ['AWS', 'Terraform', 'Kubernetes', 'Linux'],
       },
     ],
