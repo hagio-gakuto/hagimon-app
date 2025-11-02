@@ -14,10 +14,38 @@ datasource db {
 }
 
 model User {
+  id                Int           @id @default(autoincrement())
+  name              String
+  age               Int
+  hobby             String
+  imageUrl          String?
+  introduction      String?
+  yearsOfExperience Int?
+  programmingLevel  String?
+  techSkills        String[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  userMonster       UserMonster?
+}
+
+model Monster {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String
+  imageUrl     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userMonsters UserMonster[]
+}
+
+model UserMonster {
   id        Int      @id @default(autoincrement())
-  name      String
-  age       Int
-  hobby     String
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+  monsterId Int
+  monster   Monster  @relation(fields: [monsterId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([monsterId])
 }
