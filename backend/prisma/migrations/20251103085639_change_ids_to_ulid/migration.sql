@@ -31,6 +31,32 @@ ALTER COLUMN "id" SET DATA TYPE TEXT,
 ALTER COLUMN "userId" SET DATA TYPE TEXT,
 ALTER COLUMN "monsterId" SET DATA TYPE TEXT;
 
+-- Backfill: 既存の数値IDをCUID形式に変換
+-- Userテーブルの既存IDをCUID形式に変換（cで始まらない場合のみ）
+UPDATE "User"
+SET "id" = 'c' || LPAD("id", 19, '0')
+WHERE "id" NOT LIKE 'c%';
+
+-- Monsterテーブルの既存IDをCUID形式に変換
+UPDATE "Monster"
+SET "id" = 'c' || LPAD("id", 19, '0')
+WHERE "id" NOT LIKE 'c%';
+
+-- UserMonsterテーブルのuserIdをCUID形式に変換
+UPDATE "UserMonster"
+SET "userId" = 'c' || LPAD("userId", 19, '0')
+WHERE "userId" NOT LIKE 'c%';
+
+-- UserMonsterテーブルのmonsterIdをCUID形式に変換
+UPDATE "UserMonster"
+SET "monsterId" = 'c' || LPAD("monsterId", 19, '0')
+WHERE "monsterId" NOT LIKE 'c%';
+
+-- UserMonsterテーブルのidをCUID形式に変換
+UPDATE "UserMonster"
+SET "id" = 'c' || LPAD("id", 19, '0')
+WHERE "id" NOT LIKE 'c%';
+
 -- AddPrimaryKey
 ALTER TABLE "Monster" ADD CONSTRAINT "Monster_pkey" PRIMARY KEY ("id");
 
