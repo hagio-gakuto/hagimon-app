@@ -12,6 +12,108 @@ docker compose up -d --build backend db
 docker compose exec backend npx prisma migrate dev --name init
 ```
 
+## データベースマイグレーション
+
+### スキーマ変更のフロー
+
+テーブル構造を変更する際の手順です。
+
+#### 1. スキーマファイルを編集
+
+`backend/prisma/schema.prisma` を編集して、モデルやフィールドを変更します。
+
+#### 2. マイグレーションファイルを作成・適用
+
+**開発環境（推奨）:**
+
+```bash
+# Dockerコンテナ内で実行
+docker compose exec backend npm run migrate:dev -- --name <マイグレーション名>
+
+# 例: ユーザーテーブルにemailカラムを追加
+docker compose exec backend npm run migrate:dev -- --name add_user_email
+```
+
+このコマンドは以下を自動実行します：
+- マイグレーションファイルの生成（`prisma/migrations/`）
+- マイグレーションの適用
+- Prisma Clientの再生成
+
+**注意**: マイグレーション名は英語で、変更内容を簡潔に表現してください（例：`add_user_email`, `change_ids_to_cuid`）
+
+#### 3. シードデータの実行（必要に応じて）
+
+スキーマ変更に合わせてシードデータも更新してください。
+
+```bash
+# シードデータを実行
+docker compose exec backend npm run seed
+```
+
+### よく使うコマンド
+
+#### マイグレーション関連
+
+```bash
+# マイグレーションを作成・適用（開発環境）
+docker compose exec backend npm run migrate:dev -- --name <マイグレーション名>
+
+# データベースをリセット（全データ削除 + マイグレーション再適用）
+docker compose exec backend npm run migrate:reset
+
+# 既存のマイグレーションを適用（本番環境）
+docker compose exec backend npm run migrate:deploy
+
+# スキーマを直接適用（開発環境のみ、マイグレーションファイルは作成されない）
+docker compose exec backend npm run db:push
+
+# Prisma Clientを再生成
+docker compose exec backend npm run generate
+
+# Prisma Studioを起動（データベースの可視化）
+docker compose exec backend npm run db:studio
+```
+
+#### シードデータ
+
+```bash
+# シードデータを実行
+docker compose exec backend npm run seed
+```
+
+### マイグレーションのトラブルシューティング
+
+#### マイグレーションが失敗した場合
+
+```bash
+# データベースをリセット（開発環境のみ）
+docker compose exec backend npm run migrate:reset
+
+# その後、シードデータを再実行
+docker compose exec backend npm run seed
+```
+
+#### スキーマとデータベースが不一致の場合
+
+```bash
+# スキーマを直接適用（開発環境のみ）
+docker compose exec backend npm run db:push --accept-data-loss
+```
+
+**注意**: `db:push`は開発環境でのみ使用してください。本番環境では必ずマイグレーションファイルを使用します。
+
+### マイグレーションのベストプラクティス
+
+1. **マイグレーション名は明確に**: 変更内容が分かる名前を付けましょう
+   - ✅ 良い例: `add_user_email`, `remove_tech_skills`, `change_ids_to_cuid`
+   - ❌ 悪い例: `update`, `fix`, `change`
+
+2. **本番環境では`migrate:deploy`を使用**: 開発環境では`migrate:dev`、本番環境では`migrate:deploy`を使用します
+
+3. **マイグレーションファイルはコミット**: `prisma/migrations/`ディレクトリは必ずGitにコミットしてください
+
+4. **データ損失に注意**: カラム削除など、データ損失を伴う変更は慎重に行いましょう
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>

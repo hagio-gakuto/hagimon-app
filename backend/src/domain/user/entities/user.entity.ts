@@ -23,27 +23,43 @@ export class User {
   }
 
   static create(props: UserProps): User {
+    const normalized = User.normalize(props);
+    User.validate(normalized);
+    return User.instantiate(normalized);
+  }
+
+  private static normalize(props: UserProps): UserProps {
     const normalizedName = User.normalizeText(props.name);
-    if (!normalizedName) {
+    const normalizedHobby = User.normalizeRequiredText(props.hobby);
+    const normalizedIntroduction = User.normalizeText(props.introduction);
+
+    return {
+      ...props,
+      name: normalizedName || '',
+      hobby: normalizedHobby,
+      introduction: normalizedIntroduction,
+    };
+  }
+
+  private static validate(props: UserProps): void {
+    if (!props.name || !props.name.trim()) {
       throw new Error(USER_ERROR_MESSAGES.NAME_REQUIRED);
     }
 
-    const normalizedHobby = User.normalizeRequiredText(props.hobby);
-    if (!normalizedHobby) {
+    if (!props.hobby || !props.hobby.trim()) {
       throw new Error(USER_ERROR_MESSAGES.HOBBY_REQUIRED);
     }
     if (
-      normalizedHobby.length < USER_CONSTANTS.HOBBY.MIN_LENGTH ||
-      normalizedHobby.length > USER_CONSTANTS.HOBBY.MAX_LENGTH
+      props.hobby.length < USER_CONSTANTS.HOBBY.MIN_LENGTH ||
+      props.hobby.length > USER_CONSTANTS.HOBBY.MAX_LENGTH
     ) {
       throw new Error(USER_ERROR_MESSAGES.HOBBY_LENGTH_OUT_OF_RANGE);
     }
 
-    const normalizedIntroduction = User.normalizeText(props.introduction);
-    if (normalizedIntroduction) {
+    if (props.introduction) {
       if (
-        normalizedIntroduction.length < USER_CONSTANTS.INTRODUCTION.MIN_LENGTH ||
-        normalizedIntroduction.length > USER_CONSTANTS.INTRODUCTION.MAX_LENGTH
+        props.introduction.length < USER_CONSTANTS.INTRODUCTION.MIN_LENGTH ||
+        props.introduction.length > USER_CONSTANTS.INTRODUCTION.MAX_LENGTH
       ) {
         throw new Error(USER_ERROR_MESSAGES.INTRODUCTION_LENGTH_OUT_OF_RANGE);
       }
@@ -58,13 +74,10 @@ export class User {
     ) {
       throw new Error(USER_ERROR_MESSAGES.AGE_OUT_OF_RANGE);
     }
+  }
 
-    return new User({
-      ...props,
-      name: normalizedName,
-      hobby: normalizedHobby,
-      introduction: normalizedIntroduction,
-    });
+  private static instantiate(props: UserProps): User {
+    return new User(props);
   }
 
   toDTO() {

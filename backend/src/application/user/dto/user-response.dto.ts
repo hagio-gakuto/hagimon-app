@@ -1,6 +1,4 @@
-import { User } from '../../../domain/user/entities/user.entity';
-
-export type UserDto = {
+export type UserResponseDto = {
   id: string;
   name: string;
   age: number;
