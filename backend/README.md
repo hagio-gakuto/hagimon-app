@@ -9,7 +9,7 @@ docker compose up -d --build backend db
 初回はマイグレーションを適用してください。
 
 ```bash
-docker compose exec backend npx prisma migrate dev --name init
+docker compose exec backend npm run migrate:dev -- --name init
 ```
 
 ## データベースマイグレーション
@@ -59,10 +59,10 @@ docker compose exec backend npm run seed
 docker compose exec backend npm run migrate:dev -- --name <マイグレーション名>
 
 # データベースをリセット（全データ削除 + マイグレーション再適用）
-docker compose exec backend npm run migrate:reset
+docker compose exec backend npm run prisma:reset:dev
 
 # 既存のマイグレーションを適用（本番環境）
-docker compose exec backend npm run migrate:deploy
+docker compose exec backend npm run prisma:deploy
 
 # スキーマを直接適用（開発環境のみ、マイグレーションファイルは作成されない）
 docker compose exec backend npm run db:push
@@ -87,7 +87,7 @@ docker compose exec backend npm run seed
 
 ```bash
 # データベースをリセット（開発環境のみ）
-docker compose exec backend npm run migrate:reset
+docker compose exec backend npm run prisma:reset:dev
 
 # その後、シードデータを再実行
 docker compose exec backend npm run seed
@@ -108,7 +108,7 @@ docker compose exec backend npm run db:push --accept-data-loss
    - ✅ 良い例: `add_user_email`, `remove_tech_skills`, `change_ids_to_cuid`
    - ❌ 悪い例: `update`, `fix`, `change`
 
-2. **本番環境では`migrate:deploy`を使用**: 開発環境では`migrate:dev`、本番環境では`migrate:deploy`を使用します
+2. **本番環境では`prisma:deploy`を使用**: 開発環境では`migrate:dev`、本番環境では`prisma:deploy`を使用します
 
 3. **マイグレーションファイルはコミット**: `prisma/migrations/`ディレクトリは必ずGitにコミットしてください
 
