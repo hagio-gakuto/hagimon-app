@@ -65,13 +65,13 @@ docker compose exec backend npm run prisma:reset:dev
 docker compose exec backend npm run prisma:deploy
 
 # スキーマを直接適用（開発環境のみ、マイグレーションファイルは作成されない）
-docker compose exec backend npm run db:push
+docker compose exec backend npm run prisma db push
 
 # Prisma Clientを再生成
 docker compose exec backend npm run generate
 
 # Prisma Studioを起動（データベースの可視化）
-docker compose exec backend npm run db:studio
+docker compose exec backend npm run prisma:studio
 ```
 
 #### シードデータ
@@ -97,10 +97,10 @@ docker compose exec backend npm run seed
 
 ```bash
 # スキーマを直接適用（開発環境のみ）
-docker compose exec backend npm run db:push --accept-data-loss
+docker compose exec backend npm run prisma db push --accept-data-loss
 ```
 
-**注意**: `db:push`は開発環境でのみ使用してください。本番環境では必ずマイグレーションファイルを使用します。
+**注意**: `prisma db push`は開発環境でのみ使用してください。本番環境では必ずマイグレーションファイルを使用します。
 
 ### マイグレーションのベストプラクティス
 

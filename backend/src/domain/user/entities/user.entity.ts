@@ -1,5 +1,5 @@
 import { ImageUrl } from '../value-objects/image-url';
-import { USER_CONSTANTS, USER_ERROR_MESSAGES } from '../constants/user.constants';
+import { USER_RULES, USER_ERROR_MESSAGES } from '../constants/user.constants';
 import { UserId } from '../value-objects/user-id';
 
 export interface UserProps {
@@ -50,16 +50,16 @@ export class User {
       throw new Error(USER_ERROR_MESSAGES.HOBBY_REQUIRED);
     }
     if (
-      props.hobby.length < USER_CONSTANTS.HOBBY.MIN_LENGTH ||
-      props.hobby.length > USER_CONSTANTS.HOBBY.MAX_LENGTH
+      props.hobby.length < USER_RULES.HOBBY.MIN_LENGTH ||
+      props.hobby.length > USER_RULES.HOBBY.MAX_LENGTH
     ) {
       throw new Error(USER_ERROR_MESSAGES.HOBBY_LENGTH_OUT_OF_RANGE);
     }
 
     if (props.introduction) {
       if (
-        props.introduction.length < USER_CONSTANTS.INTRODUCTION.MIN_LENGTH ||
-        props.introduction.length > USER_CONSTANTS.INTRODUCTION.MAX_LENGTH
+        props.introduction.length < USER_RULES.INTRODUCTION.MIN_LENGTH ||
+        props.introduction.length > USER_RULES.INTRODUCTION.MAX_LENGTH
       ) {
         throw new Error(USER_ERROR_MESSAGES.INTRODUCTION_LENGTH_OUT_OF_RANGE);
       }
@@ -69,8 +69,8 @@ export class User {
       throw new Error(USER_ERROR_MESSAGES.AGE_MUST_BE_INTEGER);
     }
     if (
-      props.age < USER_CONSTANTS.AGE.MIN ||
-      props.age > USER_CONSTANTS.AGE.MAX
+      props.age < USER_RULES.AGE.MIN ||
+      props.age > USER_RULES.AGE.MAX
     ) {
       throw new Error(USER_ERROR_MESSAGES.AGE_OUT_OF_RANGE);
     }

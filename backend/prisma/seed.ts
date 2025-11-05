@@ -29,10 +29,14 @@ async function main() {
 
   // 作成したMonsterのIDを取得（UserMonster作成時に使用）
   const monsters = await prisma.monster.findMany({
-    orderBy: { createdAt: 'asc' },
+    where: { name: { in: ['はぎもん', 'おおたもん'] } },
   });
-  const hagimon = monsters[0];
-  const ootamon = monsters[1];
+  const monsterMap = new Map(monsters.map((monster) => [monster.name, monster]));
+  const hagimon = monsterMap.get('はぎもん');
+  const ootamon = monsterMap.get('おおたもん');
+  if (!hagimon || !ootamon) {
+    throw new Error('モンスターのシードに失敗しました');
+  }
 
   console.log('Created 2 monsters');
 
@@ -80,22 +84,33 @@ async function main() {
 
   // 作成したUserのIDを取得（UserMonster作成時に使用）
   const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'asc' },
+    where: {
+      name: {
+        in: ['山田太郎', '佐藤花子', '鈴木一郎'],
+      },
+    },
   });
+  const userMap = new Map(users.map((user) => [user.name, user]));
+  const yamada = userMap.get('山田太郎');
+  const sato = userMap.get('佐藤花子');
+  const suzuki = userMap.get('鈴木一郎');
+  if (!yamada || !sato || !suzuki) {
+    throw new Error('ユーザーのシードに失敗しました');
+  }
 
   // UserMonsterリレーションを一括作成
   await prisma.userMonster.createMany({
     data: [
       {
-        userId: users[0].id, // 山田太郎
+        userId: yamada.id,
         monsterId: hagimon.id,
       },
       {
-        userId: users[1].id, // 佐藤花子
+        userId: sato.id,
         monsterId: ootamon.id,
       },
       {
-        userId: users[2].id, // 鈴木一郎
+        userId: suzuki.id,
         monsterId: hagimon.id,
       },
     ],

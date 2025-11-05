@@ -23,6 +23,8 @@ model User {
   createdAt         DateTime      @default(now()) @map("created_at")
   updatedAt         DateTime      @updatedAt @map("updated_at")
   userMonster       UserMonster?
+
+  @@map("users")
 }
 
 model Monster {
@@ -33,6 +35,8 @@ model Monster {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   userMonsters UserMonster[]
+
+  @@map("monsters")
 }
 
 model UserMonster {
@@ -45,4 +49,5 @@ model UserMonster {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([monsterId])
+  @@map("user_monsters")
 }
