@@ -35,7 +35,7 @@ docker compose exec backend npm run migrate:dev -- --name add_user_email
 ```
 
 このコマンドは以下を自動実行します：
-- マイグレーションファイルの生成（`prisma/migrations/`）
+- マイグレーションファイルの生成（`backend/prisma/migrations/`）
 - マイグレーションの適用
 - Prisma Clientの再生成
 
@@ -110,7 +110,7 @@ docker compose exec backend npm run prisma db push --accept-data-loss
 
 2. **本番環境では`prisma:deploy`を使用**: 開発環境では`migrate:dev`、本番環境では`prisma:deploy`を使用します
 
-3. **マイグレーションファイルはコミット**: `prisma/migrations/`ディレクトリは必ずGitにコミットしてください
+3. **マイグレーションファイルはコミット**: `backend/prisma/migrations/`ディレクトリは必ずGitにコミットしてください
 
 4. **データ損失に注意**: カラム削除など、データ損失を伴う変更は慎重に行いましょう
 

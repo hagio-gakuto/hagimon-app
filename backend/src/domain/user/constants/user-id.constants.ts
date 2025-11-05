@@ -5,6 +5,7 @@ export const USER_ID_RULES = {
 } as const;
 
 export const USER_ID_ERROR_MESSAGES = {
+  INVALID_INPUT: 'UserIdは文字列である必要があります',
   INVALID_FORMAT: '無効なUserId形式です',
 } as const;
 
