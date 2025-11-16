@@ -11,17 +11,5 @@ export class UserService {
     private readonly userRepository: IUserRepository,
   ) {}
 
-  async getUsers(): Promise<User[]> {
-    return this.userRepository.findAll();
-  }
-
-  async getUserById(id: string): Promise<User> {
-    const userId = UserId.create(id);
-    const user = await this.userRepository.findById(userId);
-    if (!user) {
-      throw new NotFoundException('ユーザーが見つかりません');
-    }
-    return user;
-  }
 }
 

@@ -9,16 +9,5 @@ import { UserId } from '../../../domain/user/value-objects/user-id';
 export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<User[]> {
-    const prismaUsers = await this.prisma.user.findMany();
-    return prismaUsers.map((user) => UserMapper.toDomain(user));
-  }
-
-  async findById(id: UserId): Promise<User | null> {
-    const prismaUser = await this.prisma.user.findUnique({
-      where: { id: id.toString() },
-    });
-    return prismaUser ? UserMapper.toDomain(prismaUser) : null;
-  }
 }
 

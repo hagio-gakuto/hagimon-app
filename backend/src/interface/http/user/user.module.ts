@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
-import { UserService } from '../../../application/user/use-cases/user.service';
+import { UserQuery } from '../../../application/user/queries/user.query';
 import { UserRepository } from '../../../infrastructure/prisma/user/user.repository';
 import { IUserRepository, USER_REPOSITORY } from '../../../domain/user/repositories/user.repository.interface';
 import { PrismaService } from '../../../shared/infrastructure/prisma.service';
@@ -9,7 +9,7 @@ import { PrismaService } from '../../../shared/infrastructure/prisma.service';
   imports: [],
   controllers: [UserController],
   providers: [
-    UserService,
+    UserQuery,
     PrismaService,
     {
       provide: USER_REPOSITORY,
