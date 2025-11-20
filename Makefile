@@ -139,7 +139,7 @@ db-seed-dev:
 	docker compose exec backend npm run prisma:seed:dev
 
 db-seed-test:
-	@echo "バックエンドコンテナ内でテスト用シードデータを投入します..."
+	@echo "バックエンドコンテナ内で開発用シードデータを投入します..."
 	docker compose exec backend npm run prisma:seed:test
 
 be-test-db-setup:
