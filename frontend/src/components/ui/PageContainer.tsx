@@ -9,7 +9,7 @@ export const PageContainer = ({
 }: PageContainerProps) => {
   return (
     <div className="flex-1 bg-gray-50 flex flex-col h-full">
-      <div className={`max-w-7xl mx-auto flex-1 w-full py-8 px-4 ${className}`}>
+      <div className={`max-w-7xl mx-auto flex-1 w-full py-4 px-4 ${className}`}>
         {children}
       </div>
     </div>

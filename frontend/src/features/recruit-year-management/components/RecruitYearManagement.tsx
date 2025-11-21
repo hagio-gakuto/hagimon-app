@@ -1,18 +1,55 @@
 "use client";
 
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
-import {
-  Button,
-  Loading,
-  Title,
-  Table,
-  Form,
-  PageContainer,
-} from "@/components/ui";
+import { Button, Loading, Title, Table, PageContainer } from "@/components/ui";
+import { useForm, FormProvider } from "react-hook-form";
 import { useRecruitYearManagement } from "../hooks/useRecruitYearManagement";
 import { CreateYearDialog } from "./CreateYearDialog";
 import { getTableColumns } from "./RecruitYearTableColumns";
 import type { RecruitYearFormData } from "../hooks/useRecruitYearManagement";
+import type { RecruitYearResponseDto } from "@/types/recruit-year";
+
+const RecruitYearEditForm = ({
+  editingRow,
+  onSave,
+  onCancel,
+  isSubmitting,
+  recruitYears,
+  startEdit,
+}: {
+  editingRow: RecruitYearFormData;
+  onSave: (data: RecruitYearFormData) => Promise<void>;
+  onCancel: () => void;
+  isSubmitting: boolean;
+  recruitYears: RecruitYearResponseDto[];
+  startEdit: (year: RecruitYearResponseDto) => void;
+}) => {
+  const methods = useForm<RecruitYearFormData>({
+    defaultValues: editingRow,
+    mode: "onBlur",
+  });
+
+  const handleSubmit = methods.handleSubmit(async (data) => {
+    await onSave(data);
+  });
+
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit}>
+        <Table
+          columns={getTableColumns({
+            editingRow,
+            isSubmitting,
+            startEdit,
+            cancelEdit: onCancel,
+          })}
+          data={recruitYears}
+          emptyMessage="年度データがありません"
+        />
+      </form>
+    </FormProvider>
+  );
+};
 
 export const RecruitYearManagement = () => {
   const { recruitYears, isLoading } = useRecruitYear();
@@ -49,24 +86,14 @@ export const RecruitYearManagement = () => {
 
       <div className="bg-white rounded-lg shadow-md p-6">
         {editingRow ? (
-          <Form<RecruitYearFormData>
-            defaultValues={editingRow}
-            onSubmit={handleUpdate}
-          >
-            {(formMethods) => (
-              <Table
-                columns={getTableColumns({
-                  editingRow,
-                  isSubmitting,
-                  startEdit,
-                  cancelEdit,
-                  formMethods,
-                })}
-                data={recruitYears}
-                emptyMessage="年度データがありません"
-              />
-            )}
-          </Form>
+          <RecruitYearEditForm
+            editingRow={editingRow}
+            onSave={handleUpdate}
+            onCancel={cancelEdit}
+            isSubmitting={isSubmitting}
+            recruitYears={recruitYears}
+            startEdit={startEdit}
+          />
         ) : (
           <Table
             columns={getTableColumns({
