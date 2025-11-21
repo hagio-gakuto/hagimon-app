@@ -24,14 +24,30 @@ export const Form = <T extends FieldValues>({
   mode = "onBlur",
   ...formOptions
 }: FormProps<T>) => {
-  const methods = useForm<T>({ mode, ...formOptions });
-
-  const handleSubmit = methods.handleSubmit(async (data) => {
-    await onSubmit(data);
+  const methods = useForm<T>({
+    mode,
+    reValidateMode: "onChange",
+    ...formOptions,
   });
 
+  const handleSubmit = methods.handleSubmit(
+    async (data) => {
+      await onSubmit(data);
+    },
+    (errors) => {
+      // バリデーションエラーがある場合、最初のエラーフィールドにフォーカス
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField) {
+        const element = document.querySelector(
+          `[name="${firstErrorField}"]`
+        ) as HTMLElement;
+        element?.focus();
+      }
+    }
+  );
+
   return (
-    <form onSubmit={handleSubmit} className={className}>
+    <form onSubmit={handleSubmit} className={className} noValidate>
       {children(methods)}
     </form>
   );
