@@ -5,7 +5,6 @@ export { Checkbox, type CheckboxProps } from "./Checkbox";
 export { Radio, type RadioProps } from "./Radio";
 export { Button, type ButtonProps } from "./Button";
 export { Dialog } from "./Dialog";
-export { Form, type FormProps } from "./Form";
 export { Loading } from "./Loading";
 export { ColorPicker } from "./ColorPicker";
 export { Table } from "./Table";

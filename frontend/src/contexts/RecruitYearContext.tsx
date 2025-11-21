@@ -23,7 +23,8 @@ const RecruitYearContext = createContext<RecruitYearContextType | undefined>(
   undefined
 );
 
-import { apiClient, ApiClientError } from "@/libs/api-client";
+import { apiClient } from "@/libs/api-client";
+import { extractErrorMessage } from "@/libs/error-handler";
 
 export const RecruitYearProvider = ({
   children,
@@ -69,19 +70,11 @@ export const RecruitYearProvider = ({
         setError(null);
         hasFetchedRef.current = true;
       } catch (err) {
-        const errorMessageExtractorMap: Record<
-          string,
-          (error: unknown) => Error | null
-        > = {
-          ApiClientError: (error) =>
-            error instanceof ApiClientError ? new Error(error.message) : null,
-          Error: (error) => (error instanceof Error ? error : null),
-        };
-
-        const error =
-          errorMessageExtractorMap.ApiClientError(err) ||
-          errorMessageExtractorMap.Error(err) ||
-          new Error("予期せぬエラーが発生しました");
+        const message = extractErrorMessage(
+          err,
+          "予期せぬエラーが発生しました"
+        );
+        const error = new Error(message);
 
         // 既存のデータがある場合はエラーを設定しない（既存の状態を保持）
         setRecruitYears((prev) => {

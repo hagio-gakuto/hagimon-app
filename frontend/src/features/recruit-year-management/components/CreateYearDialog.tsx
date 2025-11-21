@@ -1,6 +1,8 @@
 "use client";
 
-import { Dialog, Form, Input, ColorPicker, Button } from "@/components/ui";
+import { Dialog, ColorPicker, Button } from "@/components/ui";
+import { TextField } from "@/components/form";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import type { RecruitYearFormData } from "../hooks/useRecruitYearManagement";
 
@@ -35,95 +37,144 @@ export const CreateYearDialog = ({
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="新規年度作成" size="md">
-      <Form<RecruitYearFormData>
-        key={isOpen ? `form-${nextYear}` : "form-closed"}
-        defaultValues={{
-          recruitYear: nextYear,
-          displayName: "",
-          themeColor: "#1E88E5",
-        }}
+      <CreateYearForm
+        nextYear={nextYear}
         onSubmit={onSubmit}
-      >
-        {({ register, formState: { errors }, watch, setValue }) => {
-          const themeColor = watch("themeColor");
-          const recruitYear = watch("recruitYear");
-
-          return (
-            <div className="space-y-6">
-              <div>
-                <label
-                  htmlFor="recruit-year-display"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  年度
-                </label>
-                <div
-                  id="recruit-year-display"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
-                >
-                  {recruitYear}年度
-                </div>
-                <input
-                  type="hidden"
-                  {...register("recruitYear", {
-                    required: "年度は必須です",
-                    valueAsNumber: true,
-                  })}
-                />
-              </div>
-
-              <Input
-                label="表示名"
-                {...register("displayName", {
-                  required: "表示名は必須です",
-                  minLength: {
-                    value: 1,
-                    message: "表示名は1文字以上で入力してください",
-                  },
-                })}
-                error={errors.displayName?.message}
-              />
-
-              <ColorPicker
-                label="テーマカラー"
-                value={themeColor || ""}
-                onChange={(color) => {
-                  setValue("themeColor", color, { shouldValidate: true });
-                }}
-                error={errors.themeColor?.message}
-                register={register("themeColor", {
-                  required: "テーマカラーは必須です",
-                  pattern: {
-                    value: /^#[0-9A-Fa-f]{6}$/,
-                    message:
-                      "テーマカラーは#RRGGBB形式で入力してください（例: #1E88E5）",
-                  },
-                })}
-              />
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                  <p className="text-red-800 text-sm">{error}</p>
-                </div>
-              )}
-
-              <div className="flex gap-4 justify-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                >
-                  キャンセル
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "作成中..." : "作成"}
-                </Button>
-              </div>
-            </div>
-          );
-        }}
-      </Form>
+        error={error}
+        isSubmitting={isSubmitting}
+        onClose={onClose}
+        key={isOpen ? `form-${nextYear}` : "form-closed"}
+      />
     </Dialog>
+  );
+};
+
+const CreateYearForm = ({
+  nextYear,
+  onSubmit,
+  error,
+  isSubmitting,
+  onClose,
+}: {
+  nextYear: number;
+  onSubmit: (data: RecruitYearFormData) => Promise<void>;
+  error: string | null;
+  isSubmitting: boolean;
+  onClose: () => void;
+}) => {
+  const methods = useForm<RecruitYearFormData>({
+    defaultValues: {
+      recruitYear: nextYear,
+      displayName: "",
+      themeColor: "#1E88E5",
+    },
+    mode: "onBlur",
+  });
+
+  const handleSubmit = methods.handleSubmit(async (data) => {
+    await onSubmit(data);
+  });
+
+  return (
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <CreateYearFormContent
+          error={error}
+          isSubmitting={isSubmitting}
+          onClose={onClose}
+        />
+      </form>
+    </FormProvider>
+  );
+};
+
+const CreateYearFormContent = ({
+  error,
+  isSubmitting,
+  onClose,
+}: {
+  error: string | null;
+  isSubmitting: boolean;
+  onClose: () => void;
+}) => {
+  const { register, watch, setValue, formState } =
+    useFormContext<RecruitYearFormData>();
+  const themeColor = watch("themeColor");
+  const recruitYear = watch("recruitYear");
+  const errors = formState.errors;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <label
+          htmlFor="recruit-year-display"
+          className="block text-sm font-medium text-gray-700 mb-1"
+        >
+          年度
+        </label>
+        <div
+          id="recruit-year-display"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
+        >
+          {recruitYear}年度
+        </div>
+        <input
+          type="hidden"
+          {...register("recruitYear", {
+            required: "年度は必須です",
+            valueAsNumber: true,
+          })}
+        />
+      </div>
+
+      <TextField
+        name="displayName"
+        label="表示名"
+        rules={{
+          required: "表示名は必須です",
+          minLength: {
+            value: 1,
+            message: "表示名は1文字以上で入力してください",
+          },
+        }}
+      />
+
+      <ColorPicker
+        label="テーマカラー"
+        value={themeColor || ""}
+        onChange={(color) => {
+          setValue("themeColor", color, { shouldValidate: true });
+        }}
+        error={errors.themeColor?.message}
+        register={register("themeColor", {
+          required: "テーマカラーは必須です",
+          pattern: {
+            value: /^#[0-9A-Fa-f]{6}$/,
+            message:
+              "テーマカラーは#RRGGBB形式で入力してください（例: #1E88E5）",
+          },
+        })}
+      />
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+
+      <div className="flex gap-4 justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose}
+          disabled={isSubmitting}
+        >
+          キャンセル
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "作成中..." : "作成"}
+        </Button>
+      </div>
+    </div>
   );
 };

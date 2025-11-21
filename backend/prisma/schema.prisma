@@ -7,22 +7,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  user
+  admin
+  master
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  age       Int
-  hobby     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  email       String   @unique
+  role        UserRole @default(user)
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  gender      Gender?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  createdBy   String   @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedBy   String   @map("updated_by")
+
+  @@map("users")
 }
 
 model RecruitYear {
   recruitYear Int      @id @unique @map("recruit_year")
   displayName String   @map("display_name")
   themeColor  String   @map("theme_color")
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
   createdBy   String   @map("created_by")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
   updatedBy   String   @map("updated_by")
 
   @@map("recruit_years")
@@ -33,7 +51,7 @@ model Outbox {
   eventType String   @map("event_type")
   payload   Json
   status    String   @default("pending") // pending, processed, failed
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
   processedAt DateTime? @map("processed_at")
 
   @@map("outbox")

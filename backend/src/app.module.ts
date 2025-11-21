@@ -1,11 +1,12 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { RecruitYearModule } from './modules/recruit-year/recruit-year.module';
+import { UserModule } from './modules/user/user.module';
 import { CustomLoggerService } from './config/custom-logger.service';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
-  imports: [RecruitYearModule],
+  imports: [RecruitYearModule, UserModule],
   controllers: [],
   providers: [PrismaService, CustomLoggerService],
 })

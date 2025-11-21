@@ -1,5 +1,5 @@
 
-.PHONY: help init up down restart ps logs build-and-up down-clean db-only dev-setup dev-be dev-fe migrate-local generate-local seed-local studio-local prisma-studio-local
+.PHONY: help init up down restart ps logs build-and-up down-clean db-only dev-setup dev-be dev-fe migrate-local generate-local seed-local studio-local prisma-studio-local db-seed-dev
 
 
 .DEFAULT_GOAL := help
@@ -78,6 +78,8 @@ generate-local:
 seed-local:
 	@echo "ローカルでシードデータを投入しています..."
 	cd backend && DATABASE_URL=$${DATABASE_URL:-postgresql://postgres:postgres@localhost:5433/app?schema=public} npm run seed
+
+db-seed-dev: seed-local
 
 studio-local:
 	@echo "ローカルでPrisma Studioを起動しています..."

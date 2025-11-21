@@ -42,7 +42,8 @@ src/
 │
 ├── components/            # 共通コンポーネント
 │   ├── layout/            # レイアウトコンポーネント（Header, Footer, Breadcrumb, NavigationLinks）
-│   └── ui/                # UIコンポーネント（Button, Input, Select, Textarea, Checkbox, Radio, Form, Loading, Title, ColorPicker, Dialog, Table）
+│   ├── ui/                # UIコンポーネント（Button, Input, Select, Textarea, Checkbox, Radio, Form, Loading, Title, ColorPicker, Dialog, Table）
+│   └── form/              # フォームコンポーネント（FormField, TextField, SelectField, TextareaField）
 │
 ├── features/              # 機能ごとのドメインロジック
 │   └── {feature-name}/
@@ -105,6 +106,27 @@ type User = {
 
 // NG
 interface User { ... }
+```
+
+### コンポーネント分割
+
+- **1 ファイル 1 コンポーネントの原則**
+- 1 つのファイルには 1 つのコンポーネントのみを定義する
+- 複数のコンポーネントが必要な場合は、それぞれを別ファイルに分割する
+- 可読性と保守性を向上させる
+
+```tsx
+// OK: 1ファイル1コンポーネント
+// components/UserSearchForm.tsx
+export const UserSearchForm = () => { ... }
+
+// components/UserManagement.tsx
+export const UserManagement = () => { ... }
+
+// NG: 1ファイルに複数コンポーネント
+// components/UserManagement.tsx
+const UserSearchForm = () => { ... }
+export const UserManagement = () => { ... }
 ```
 
 ### 分岐と条件分岐
@@ -223,62 +245,60 @@ export const Page1 = () => {
 
 ## フォーム開発
 
-### フォーム構造
+### フォーム管理パターン
 
-- **react-hook-form を使用**
+フォーム管理は`react-hook-form`の`FormProvider`と`useFormContext`を使用したパターンを採用します。
+
+#### 基本構造
+
+1. **`Form`コンポーネント**: `FormProvider`を使用してフォームコンテキストを提供
+2. **`FormField`コンポーネント**: フィールドのラベル、エラー表示、バリデーションを管理
+3. **フィールドコンポーネント**: `TextField`、`SelectField`、`TextareaField`など、各入力タイプに対応したコンポーネント
+
+#### 使用例
+
+```tsx
+import { Form, Button } from "@/components/ui";
+import { TextField, SelectField } from "@/components/form";
+import { useFormContext } from "react-hook-form";
+
+// フォームの定義
+<Form<FormData> defaultValues={{ name: "", email: "" }} onSubmit={handleSubmit}>
+  <TextField name="name" label="名前" rules={{ required: "名前は必須です" }} />
+  <SelectField
+    name="role"
+    label="権限"
+    options={roleOptions}
+    rules={{ required: "権限は必須です" }}
+  />
+  <Button type="submit">送信</Button>
+</Form>;
+
+// フォーム内でuseFormContextを使用する場合
+const FormResetButton = () => {
+  const { reset } = useFormContext();
+  return <Button onClick={() => reset()}>リセット</Button>;
+};
+```
+
+#### コンポーネント構成
+
+- **`components/ui/Form.tsx`**: `FormProvider`を使用してフォームコンテキストを提供
+- **`components/form/FormField.tsx`**: フィールドのラベル、エラー表示、バリデーションを管理
+- **`components/form/TextField.tsx`**: テキスト入力フィールド
+- **`components/form/SelectField.tsx`**: セレクトボックスフィールド
+- **`components/form/TextareaField.tsx`**: テキストエリアフィールド
+
+#### ルール
+
+- **`Form`コンポーネントは`FormProvider`を使用**: `children`を関数ではなく通常の ReactNode として受け取る
+- **フィールドコンポーネントは`useFormContext`を使用**: `Form`コンポーネント内で使用するフィールドコンポーネントは`useFormContext`でフォームメソッドにアクセス
+- **バリデーションは`rules`プロパティで指定**: 各フィールドコンポーネントの`rules`プロパティでバリデーションルールを指定
+- **エラーメッセージは自動表示**: `FormField`コンポーネントが自動的にエラーメッセージを表示
+- **`Input`コンポーネントはシンプルに**: label や error 表示は含めず、純粋な input 要素のみを提供
 - **フロントエンドでは zod を使用しない**（バリデーションは react-hook-form の機能で完結）
 - **バックエンドの DTO で zod によるバリデーションを実施**
 - **Form コンポーネントの`mode`はデフォルトで`"onBlur"`に設定されている**
-
-```tsx
-import { Form, Input, Button } from "@/components/ui";
-
-type FormData = {
-  name: string;
-  age: number;
-};
-
-const UserForm = () => {
-  return (
-    <Form<FormData>
-      defaultValues={{ name: "", age: 0 }}
-      onSubmit={async (data) => {
-        // バックエンドAPIに送信（DTOでzodバリデーション）
-        await updateUser(data);
-      }}
-    >
-      {({ register, formState: { errors } }) => (
-        <>
-          <Input
-            label="名前"
-            {...register("name", {
-              required: "名前は必須です",
-            })}
-            error={errors.name?.message}
-          />
-          <Button type="submit">送信</Button>
-        </>
-      )}
-    </Form>
-  );
-};
-```
-
-### エラーメッセージの表示
-
-- **Input、Select、Textarea などの UI コンポーネントは`error`プロパティを受け取る**
-- `error`プロパティには`errors.fieldName?.message`を渡す
-- エラーメッセージは`role="alert"`属性を持つ`<p>`タグで表示される
-
-```tsx
-<Input
-  label="表示名"
-  {...register("displayName", {
-    required: "表示名は必須です",
-  })}
-  error={errors.displayName?.message}
-/>
-```
 
 ### 型定義ガイドライン
 
@@ -465,17 +485,21 @@ try {
 ### 共通 UI コンポーネント一覧
 
 - **Button**: ボタンコンポーネント
-- **Input**: テキスト入力フィールド（label、error 対応）
-- **Textarea**: テキストエリア（label、error 対応）
-- **Select**: セレクトボックス（label、error、options 対応）
+- **Input**: シンプルなテキスト入力フィールド（label や error 表示なし）
+- **Textarea**: シンプルなテキストエリア（label や error 表示なし）
+- **Select**: シンプルなセレクトボックス（label や error 表示なし、options 対応）
 - **Checkbox**: チェックボックス
 - **Radio**: ラジオボタン
-- **Form**: react-hook-form ラッパー（mode: "onBlur"デフォルト）
+- **Form**: react-hook-form ラッパー（FormProvider 使用、mode: "onBlur"デフォルト）
 - **Loading**: ローディング表示
 - **Title**: ページタイトル
 - **ColorPicker**: カラーピッカー（react-color 使用）
 - **Dialog**: モーダルダイアログ
 - **Table**: 汎用テーブル（カラム定義、カスタムレンダリング対応）
+- **FormField**: フィールドのラベル、エラー表示、バリデーションを管理
+- **TextField**: テキスト入力フィールド（FormField + Input）
+- **SelectField**: セレクトボックスフィールド（FormField + Select）
+- **TextareaField**: テキストエリアフィールド（FormField + Textarea）
 
 ### ローディング画面
 

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import type { RecruitYearResponseDto } from "@/types/recruit-year";
-import { apiClient, ApiClientError } from "@/libs/api-client";
+import { apiClient } from "@/libs/api-client";
+import { extractErrorMessage } from "@/libs/error-handler";
 
 export type RecruitYearFormData = {
   recruitYear: number;
@@ -64,19 +65,7 @@ export const useRecruitYearManagement = () => {
 
       setEditingRow(null);
     } catch (err) {
-      const errorMessageExtractorMap: Record<
-        string,
-        (error: unknown) => string
-      > = {
-        ApiClientError: (error) =>
-          error instanceof ApiClientError ? error.message : "",
-        Error: (error) => (error instanceof Error ? error.message : ""),
-      };
-
-      const message =
-        errorMessageExtractorMap.ApiClientError(err) ||
-        errorMessageExtractorMap.Error(err) ||
-        "更新に失敗しました";
+      const message = extractErrorMessage(err, "更新に失敗しました");
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -101,19 +90,7 @@ export const useRecruitYearManagement = () => {
       setRecruitYears(updatedYears);
       setIsCreating(false);
     } catch (err) {
-      const errorMessageExtractorMap: Record<
-        string,
-        (error: unknown) => string
-      > = {
-        ApiClientError: (error) =>
-          error instanceof ApiClientError ? error.message : "",
-        Error: (error) => (error instanceof Error ? error.message : ""),
-      };
-
-      const message =
-        errorMessageExtractorMap.ApiClientError(err) ||
-        errorMessageExtractorMap.Error(err) ||
-        "作成に失敗しました";
+      const message = extractErrorMessage(err, "作成に失敗しました");
       setError(message);
     } finally {
       setIsSubmitting(false);
