@@ -1,0 +1,357 @@
+---
+alwaysApply: true
+---
+
+---
+
+description: "backend/配下の実装をする前に必ず読むべき内容"
+globs: backend/\*\*
+alwaysApply: false
+
+---
+
+まず、このファイルを理解したら「backend-rule を読みました。」と言ってください。
+このルールは backend/ の開発作業に適用してください。
+
+# 概要
+
+このプロジェクトのバックエンドは、**Nest.js** フレームワークを使用し、**DDD（ドメイン駆動開発）** と **CQRS（Command Query Responsibility Segregation）** を組み合わせたアーキテクチャを採用しています。
+
+## CQRS アーキテクチャ
+
+このプロジェクトでは、**Event Sourcing** ではなく **State Sourcing** に CQRS を組み込んでいます。これにより、**Command（書き込み）** 側と **Query（読み取り）** 側で同じデータベースを参照します。
+
+この構成を採用する主な理由は、Command 側で DDD を用いると、データ取得処理（`Get`）が複雑になりがちだからです。そのため、以下のように役割を分けています。
+
+- **Command 側**: DDD を用いて、データの書き込み・更新・削除ロジックを扱います。
+- **Query 側**: **Port-Adapter パターン** に基づき、Prisma を直接使用して読み取り処理を最適化します。
+
+Command と Query はデータベースを共有しますが、それ以外の機能（ユーティリティ関数など）は共有しません。
+
+## ディレクトリ構成
+
+`src` ディレクトリ配下は、役割に応じて分割されています。
+
+```
+├── src
+│   ├── command   # 書き込み・更新・削除処理
+│   │   ├── application  # アプリケーションサービス層
+│   │   ├── controller   # コントローラー層
+│   │   ├── domain       # ドメイン層（リポジトリインターフェースなど）
+│   │   ├── dto          # DTO（データ転送オブジェクト）定義
+│   │   ├── infra        # インフラストラクチャ層（リポジトリ実装など）
+│   │   ├── constants    # 定数定義（イベントタイプ、インジェクショントークンなど）
+│   │   └── types        # 型定義
+│   ├── query     # 読み取り専用API処理
+│   │   ├── application  # アプリケーションサービス層
+│   │   ├── controller   # コントローラー層
+│   │   ├── dao          # DAO（データアクセスオブジェクト）層
+│   │   ├── dto          # DTO定義
+│   │   └── types        # 型定義
+│   ├── modules   # モジュール定義（Nest.jsモジュール）
+│   │             # - Query/Commandごとにモジュールを分離
+│   │             # - 統合モジュールでQuery/Commandをまとめる
+│   │             # - 例: recruit-year-query.module.ts, recruit-year-command.module.ts, recruit-year.module.ts
+│   ├── common    # 共通処理
+│   │   ├── errors       # エラー定義
+│   │   ├── filters      # フィルター（グローバル例外フィルターなど）
+│   │   ├── middleware   # ミドルウェア
+│   │   └── pipes        # パイプ（バリデーションパイプなど）
+│   └── config    # 設定（ロガーなど）
+```
+
+## 依存関係
+
+各層の依存関係は以下の通りです。
+
+- **Command**: `controller` -\> `application` -\> `domain` \<- `infra`
+- **Query**: `controller` -\> `application` \<- `dao`
+
+## モジュール構成
+
+### Query/Command 分離
+
+- **Query 側と Command 側でモジュールを分離する**
+- `modules/{feature-name}/`配下に以下のファイルを作成する
+  - `{feature-name}-query.module.ts`: Query 側のモジュール
+  - `{feature-name}-command.module.ts`: Command 側のモジュール
+  - `{feature-name}.module.ts`: 統合モジュール（Query/Command をまとめる）
+
+```ts
+// modules/recruit-year/recruit-year-query.module.ts
+@Module({
+  controllers: [RecruitYearController],
+  providers: [RecruitYearService, RecruitYearDao, PrismaService],
+})
+export class RecruitYearQueryModule {}
+
+// modules/recruit-year/recruit-year-command.module.ts
+@Module({
+  controllers: [RecruitYearController],
+  providers: [
+    RecruitYearService,
+    {
+      provide: INJECTION_TOKENS.IRecruitYearRepository,
+      useClass: RecruitYearRepository,
+    },
+    RecruitYearRepository,
+    RecruitYearDao,
+    PrismaService,
+  ],
+})
+export class RecruitYearCommandModule {}
+
+// modules/recruit-year/recruit-year.module.ts
+@Module({
+  imports: [RecruitYearQueryModule, RecruitYearCommandModule],
+})
+export class RecruitYearModule {}
+```
+
+### AppModule での使用
+
+- **AppModule では統合モジュールのみをインポートする**
+- Query/Command の個別モジュールは直接インポートしない
+
+```ts
+// app.module.ts
+@Module({
+  imports: [RecruitYearModule], // 統合モジュールのみ
+  // ...
+})
+export class AppModule {}
+```
+
+# Strict Rule
+
+以下の項目は、プロジェクトの整合性を保つ上で特に重要なルールです。これらに違反している箇所を見つけたら、些細なことでも報告してください。
+
+## 開発全般
+
+- スキーマ変更後は必ず`npx prisma generate`でクライアントを再生成すること
+- データ加工（集計、フィルタリング、結合など）のロジックは、アプリケーションロジックではなく、可能な限りデータベースクエリで完結させること
+
+  - 例
+    - 条件でフィルタリングする場合、アプリケーションで全件取得せず、WHERE 句を使いデータベースでフィルタリングする
+    - 合計値を計算する場合、アプリケーションで全件取得せず、SUM()関数を使いデータベースで合計する
+
+- テスト容易性の確保
+
+  - DAO 層やリポジトリ層では外部依存（現在時刻、乱数など）を直接使用せず、パラメータとして注入可能にすること
+  - インターフェース設計時にテスト容易性を考慮し、必要に応じて依存性注入を可能にすること
+
+- 型チェックの実行
+
+  - タスク実行時に既存のコードと整合性が取れているか確認するために、適宜`npm run test`, `npm run tsc`を実行すること
+  - タスク完了時に`npm run fix-all`を実行し、整形すること
+
+- エラーハンドリング
+  - エラーはそれぞれの層でカスタムエラーを作成し、例外的な状況以外で `throw new Error()`を使ってはいけない
+  - エラーはそれぞれの層で以下のように包み直す
+
+```ts: application-layer-function
+
+function someServiceFunction(){
+  try{
+    someRepositoryMethod()
+  }catch(error){
+    if (error instanceof NotFoundRepositoryError){
+      throw new NotFoundApplicationError(error) // エラーをその層のカスタムエラー型に詰めなおす
+    }
+    throw error
+  }
+}
+
+```
+
+## Command
+
+- ドメイン層とアプリケーション層以外はユビキタス言語で記載しない。
+  - コントローラー層、リポジトリ層は`create`や`update`等の RESTAPI の言葉で記載すること
+- `upsert`ではなく`create`と`update`を使うこと
+  - `upsert`は楽観的ロックが使えないため使用しない
+  - Query 側の DAO を使って存在確認を行い、存在する場合は`update`、存在しない場合は`create`を実行する
+  - try-catch はなるべく使わない
+- **infra 層はインターフェースにする**
+  - リポジトリは`domain/`配下にインターフェースを定義し、`infra/`で実装する
+  - アプリケーション層はインターフェースに依存する
+- **command 側に`findOne`などの読み取りメソッドを定義しない**
+  - 読み取り処理は Query 側の DAO に定義する
+  - command 側の service で Query 側の DAO を注入して使用する
+- **イベントタイプは定数で管理する**
+  - `command/constants/event-types.ts`に定数として定義する
+  - 文字列リテラルを直接使用しない
+- 外部サービスと連携しているテーブル（例: `AtsysApplicant` テーブル, `ApplicantSelectionProcess` テーブル）は、\*\*`command` 配下で直接更新してはいけない
+  - 外部サービスから連携されているか否かは Prisma のコメントアウトを確認
+- 外部連携はコントローラー層、サービス層、リポジトリ層で別ファイルで定義すること
+  - ドメイン層で定義しているインターフェースも別で定義する
+  - 例：カレンダー登録(GoogleCalendar)に関する処理を含むファイルは分割する
+    - backend/src/command/controller/interview-slot/http/interview-slot.controller.ts
+    - backend/src/command/controller/interview-slot/http/interview-slot-calendar.controller.ts
+- **Outbox パターンの実装**
+  - 外部システムと連携するテーブルを更新する際は、outbox テーブルにイベントを記録する
+  - リポジトリ層でトランザクション内で outbox エントリを作成する
+- ビジネスロジックの実装可能箇所は Domain ロジックに記載
+- ドメインサービスは以下の制約にしたがって実装する
+  - 複数 entity に渡る処理
+  - infra 層（外部依存）を利用してはいけない
+    - infra 層を利用する場合は、アプリケーションサービスに記載する
+    - **どこにも依存していないか？**を基準に考える
+
+## Query
+
+- 原則「読み取り専用」。DAO 層での書き込み操作（create/update/delete/upsert/raw-insert 等）は禁止
+- 複雑な集計・フィルタは DB 側（Prisma/SQL）で完結させる（アプリ側で全件ロードしない）
+
+# コーディングスタイル
+
+## 関数とクラス
+
+- **1 メソッドの行数は 5 行前後にする**
+
+  - メソッドが長くなる場合は、適切に分割する
+  - 可読性と保守性を向上させる
+
+- 関数の引数は常に keyword arguments 形式で記載すること
+
+  - 引数が 2 つ以上の場合は必ずオブジェクト形式で受け取る
+  - 例: `function example({ param1, param2 }: { param1: string; param2: number })`
+
+- command 側 API ではコントローラー層で VO 生成し、アプリケーション層に渡すこと
+
+  - DTO から VO への変換はコントローラー層の責務とすること
+  - VO が存在しない値は、DTO の中で zod を使用してバリデーションをすること
+  - VO クラスのファクトリメソッドには`create`を使用すること
+  - **DTO の命名は Request/Response を明示的に定義する**
+    - リクエスト用: `{機能}RequestDto` または `{機能}RequestSchema`
+    - レスポンス用: `{機能}ResponseDto`
+    - 例: `UpdateRecruitYearRequestDto`, `RecruitYearResponseDto`
+
+- **バリデーションは DTO 内で自動実行する**
+
+  - コントローラー層で手動バリデーションを行わない
+  - `ZodValidationPipe`を使用して DTO 内で自動バリデーションを実行する
+
+- バリデーション関数の 返り値は Boolean とする
+  - 関数内で条件を満たさない場合は、`throw new Error`ではなく、false を返すこと
+  - その false を条件分岐として呼び出し元で Error を throw する
+
+## 可読性と型安全
+
+- any 型や型アサーション（`as`）、非ヌル宣言（`!`）は原則用いない
+
+  - 用いる場合は必ずコメントアウトで理由を添えること
+  - Prisma クライアントの型エラーは、マイグレーションを実行して`prisma generate`で解決すること
+  - 型アサーションで回避するのではなく、スキーマを更新して Prisma クライアントを再生成すること
+  - zod の型エラー（`Unsafe assignment`など）は、TypeScript strict モードによる警告で実行時には問題ないが、可能な限り型定義を明示的に指定すること
+
+- **分岐や switch は極力使わず、マッピングやオブジェクトを使用する**
+
+  - 条件分岐は可読性を下げ、バグの温床になりやすい
+  - マッピングやオブジェクトを使うことで、データ駆動的なコードになり保守性が向上する
+
+  ```ts
+  # OK: マッピングを使用
+  const statusColorMap: Record<string, string> = {
+    success: "green",
+    error: "red",
+    warning: "yellow",
+  };
+  const color = statusColorMap[status] || "gray";
+
+  const logLevelMap: Record<
+    string,
+    { method: 'error' | 'warn' | 'log'; trace?: string }
+  > = {
+    error: { method: 'error', trace: undefined },
+    warn: { method: 'warn' },
+    log: { method: 'log' },
+  };
+  const logConfig = logLevelMap[level] || logLevelMap.log;
+
+  # NG: 分岐を使用
+  let color: string;
+  if (status === "success") {
+    color = "green";
+  } else if (status === "error") {
+    color = "red";
+  } else if (status === "warning") {
+    color = "yellow";
+  } else {
+    color = "gray";
+  }
+
+  # NG: switchを使用
+  switch (status) {
+    case "success":
+      color = "green";
+      break;
+    case "error":
+      color = "red";
+      break;
+    case "warning":
+      color = "yellow";
+      break;
+    default:
+      color = "gray";
+  }
+  ```
+
+- if 文はネストが深くならないように記述すること（原則 2 段まで）
+
+  - 複雑なネストによる可読性低下・バグ混入を防ぐ
+  - ただし、マッピングやオブジェクトで代替できない場合のみ使用する
+
+- ハードコーディングはしないこと。
+  - 検証環境や本番環境によって異なりそうなもの定数は.env で管理すること
+
+## エラーとログ
+
+- エラーメッセージはすべて日本語で表示すること
+- ログ出力は`console.log`系ではなく`this.logger.log`のようなカスタムログ出力を用いること
+  - `backend/src/config/custom-logger.service.ts`を DI して用いること
+- エラーレスポンスは以下のような形式で記載し簡易的な記載は行わないこと
+
+  ```ts
+  // OK
+  throw new HttpException(
+    {
+      statusCode: HttpStatus.BAD_REQUEST,
+      message: "ログインパスワードは6-15文字で、空白を含んでいてはいけません",
+      error: "Bad Request",
+    },
+    HttpStatus.BAD_REQUEST,
+    {
+      cause: error,
+    }
+  );
+
+  // NG
+  throw new BadRequestException(
+    "ログインパスワードは6-15文字で、空白を含んでいてはいけません"
+  );
+  ```
+
+# テスト
+
+## 開発全般
+
+- テストでは固定値を使用し、再現性と安定性を確保すること
+- 動的な値（new Date()など）をテストで使用する場合は、テストの意図を明確にすること
+- 必ず「正常系」,「異常系」をプレフィックスとして設けること
+  - 例
+    - `it('異常系: メモが1000文字を超過する場合', async () => {`
+    - `it('正常系: 面接官作成成功', async () => {`
+- 新規作成した関数や例外を投げる処理があれば必ずテストケースに含める
+- 境界条件は必ずテストケースに含める
+
+## Command
+
+- controller 層と repository 層のテストでは、モックを利用せず、直接 DB を使用してテスト
+
+## Query
+
+- 全て mock で記載
+- 動作が不明瞭になりやすい箇所は結合テストで実装
+
+  - 例: 生クエリを使った関数
