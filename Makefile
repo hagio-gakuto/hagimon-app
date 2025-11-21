@@ -1,5 +1,5 @@
 
-.PHONY: help init up down restart ps logs build-and-up down-clean db-only dev-setup dev-be dev-fe migrate-local generate-local seed-local studio-local
+.PHONY: help init up down restart ps logs build-and-up down-clean db-only dev-setup dev-be dev-fe migrate-local generate-local seed-local studio-local prisma-studio-local
 
 
 .DEFAULT_GOAL := help
@@ -82,6 +82,8 @@ seed-local:
 studio-local:
 	@echo "ローカルでPrisma Studioを起動しています..."
 	cd backend && DATABASE_URL=$${DATABASE_URL:-postgresql://postgres:postgres@localhost:5433/app?schema=public} npm run prisma:studio
+
+prisma-studio-local: studio-local
 
 ps:
 	@echo "コンテナの状態を確認しています..."
