@@ -6,7 +6,13 @@ export type UpdateRecruitYearRequestDto = {
   themeColor: string;
 };
 
-const updateRecruitYearRequestSchemaObject = {
+export type CreateRecruitYearRequestDto = {
+  recruitYear: number;
+  displayName: string;
+  themeColor: string;
+};
+
+const recruitYearRequestSchemaObject = {
   recruitYear: z.number().int().positive(),
   displayName: z.string().min(1, '表示名は必須です'),
   themeColor: z
@@ -15,5 +21,9 @@ const updateRecruitYearRequestSchemaObject = {
 };
 
 export const updateRecruitYearRequestSchema = z.object(
-  updateRecruitYearRequestSchemaObject,
+  recruitYearRequestSchemaObject,
+);
+
+export const createRecruitYearRequestSchema = z.object(
+  recruitYearRequestSchemaObject,
 );
