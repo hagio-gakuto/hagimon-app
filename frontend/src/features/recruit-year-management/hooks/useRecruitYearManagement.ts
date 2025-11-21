@@ -83,9 +83,7 @@ export const useRecruitYearManagement = () => {
     }
   };
 
-  const handleCreate = async (
-    data: Omit<RecruitYearFormData, "recruitYear">
-  ) => {
+  const handleCreate = async (data: RecruitYearFormData) => {
     try {
       setIsSubmitting(true);
       setError(null);

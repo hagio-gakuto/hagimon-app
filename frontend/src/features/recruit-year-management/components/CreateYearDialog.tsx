@@ -1,12 +1,13 @@
 "use client";
 
 import { Dialog, Form, Input, ColorPicker, Button } from "@/components/ui";
+import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import type { RecruitYearFormData } from "../hooks/useRecruitYearManagement";
 
 type CreateYearDialogProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<RecruitYearFormData, "recruitYear">) => Promise<void>;
+  onSubmit: (data: RecruitYearFormData) => Promise<void>;
   isSubmitting: boolean;
   error: string | null;
 };
@@ -18,10 +19,26 @@ export const CreateYearDialog = ({
   isSubmitting,
   error,
 }: CreateYearDialogProps) => {
+  const { recruitYears } = useRecruitYear();
+
+  const calculateNextYear = () => {
+    if (recruitYears.length > 0) {
+      const maxYear = Math.max(...recruitYears.map((y) => y.recruitYear));
+      return maxYear + 1;
+    }
+    // 現在の年度がない場合は、現在の年から計算
+    const currentYear = new Date().getFullYear();
+    return currentYear;
+  };
+
+  const nextYear = calculateNextYear();
+
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="新規年度作成" size="md">
-      <Form<Omit<RecruitYearFormData, "recruitYear">>
+      <Form<RecruitYearFormData>
+        key={isOpen ? `form-${nextYear}` : "form-closed"}
         defaultValues={{
+          recruitYear: nextYear,
           displayName: "",
           themeColor: "#1E88E5",
         }}
@@ -29,8 +46,32 @@ export const CreateYearDialog = ({
       >
         {({ register, formState: { errors }, watch, setValue }) => {
           const themeColor = watch("themeColor");
+          const recruitYear = watch("recruitYear");
+
           return (
             <div className="space-y-6">
+              <div>
+                <label
+                  htmlFor="recruit-year-display"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  年度
+                </label>
+                <div
+                  id="recruit-year-display"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-700"
+                >
+                  {recruitYear}年度
+                </div>
+                <input
+                  type="hidden"
+                  {...register("recruitYear", {
+                    required: "年度は必須です",
+                    valueAsNumber: true,
+                  })}
+                />
+              </div>
+
               <Input
                 label="表示名"
                 {...register("displayName", {
