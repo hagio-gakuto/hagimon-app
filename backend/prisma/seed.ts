@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { seedUsers } from './seeds/user.seed';
 import { seedRecruitYears } from './seeds/recruit-year.seed';
+import { seedSelectionProcesses } from './seeds/selection-process.seed';
 
 const prisma = new PrismaClient();
 
@@ -11,6 +12,10 @@ async function main() {
     // 依存関係の順序で実行
     // RecruitYearはマスタデータなので先に作成
     await seedRecruitYears({ prisma });
+    console.log('');
+
+    // SelectionProcessを作成
+    await seedSelectionProcesses({ prisma });
     console.log('');
 
     // Userを後で作成
