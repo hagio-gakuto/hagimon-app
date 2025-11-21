@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,4 +14,27 @@ model User {
   hobby     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model RecruitYear {
+  recruitYear Int      @id @unique @map("recruit_year")
+  displayName String   @map("display_name")
+  themeColor  String   @map("theme_color")
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdBy   String   @map("created_by")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedBy   String   @map("updated_by")
+
+  @@map("recruit_years")
+}
+
+model Outbox {
+  id        String   @id @default(cuid())
+  eventType String   @map("event_type")
+  payload   Json
+  status    String   @default("pending") // pending, processed, failed
+  createdAt DateTime @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+
+  @@map("outbox")
 }

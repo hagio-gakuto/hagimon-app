@@ -74,7 +74,7 @@ React の思想を深く理解し、モダンなフロントエンド開発ス�
 
 Docker Compose を使用して、フロントエンド、バックエンド、PostgreSQL の環境を一発で構築できます。
 
-> **Windows ユーザー向け**: 詳細なWindowsセットアップガイドは[WINDOWS_SETUP.md](./WINDOWS_SETUP.md)を参照してください。
+> **Windows ユーザー向け**: 詳細な Windows セットアップガイドは[WINDOWS_SETUP.md](./WINDOWS_SETUP.md)を参照してください。
 
 ### 1. 前提条件
 
@@ -123,29 +123,78 @@ docker-compose exec backend npx prisma migrate dev
 
 - **フロントエンド**: http://localhost:3000
 - **バックエンド API**: http://localhost:3001
-- **PostgreSQL**: localhost:5432
+- **PostgreSQL**: localhost:5433 (Docker の場合)
 
-### 4. 開発時の便利なコマンド
+### 4. ローカルで開発する場合（Docker を使わない）
+
+データベースは Docker で起動し、バックエンドとフロントエンドはローカルで実行する場合：
+
+#### セットアップ手順
+
+```bash
+# 1. ローカル開発環境のセットアップ
+make dev-setup
+
+# 2. 環境変数を設定（バックエンド用）
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5433/app?schema=public
+
+# 3. データベースマイグレーション
+cd backend && npm run migrate:dev
+
+# 4. バックエンドとフロントエンドを別々のターミナルで起動
+
+# 【ターミナル1】バックエンド
+make dev-be
+# または
+cd backend && npm run start:dev
+
+# 【ターミナル2】フロントエンド
+make dev-fe
+# または
+cd frontend && npm run dev
+```
+
+#### ローカル開発用コマンド
+
+```bash
+# データベースのみDockerで起動
+make db-only
+
+# ローカル開発環境のセットアップ（初回のみ）
+make dev-setup
+
+# ローカルでバックエンドを起動
+make dev-be
+
+# ローカルでフロントエンドを起動
+make dev-fe
+
+# 環境変数の設定方法（.zshrc や .bashrc に追加すると便利）
+echo 'export DATABASE_URL=postgresql://postgres:postgres@localhost:5433/app?schema=public' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### 5. 開発時の便利なコマンド（Docker 使用時）
 
 #### コマンド対応表
 
 Windows ユーザー向け：以下は対応するコマンドです。
 
-| Makefile コマンド | Windows PowerShell コマンド |
-|-------------------|---------------------------|
-| `make init` | `.\make init` |
-| `make up` | `.\make up` |
-| `make down` | `.\make down` |
-| `make build-and-up` | `.\make build-and-up` |
-| `make restart` | `.\make restart` |
-| `make ps` | `.\make ps` |
-| `make logs` | `.\make logs` |
-| `make logs-fe` | `.\make logs-fe` |
-| `make logs-be` | `.\make logs-be` |
-| `make db-migrate-dev` | `.\make db-migrate-dev` |
-| `make db-reset-dev` | `.\make db-reset-dev` |
-| `make prisma-studio-dev` | `.\make prisma-studio-dev` |
-| `make help` | `.\make help` |
+| Makefile コマンド        | Windows PowerShell コマンド |
+| ------------------------ | --------------------------- |
+| `make init`              | `.\make init`               |
+| `make up`                | `.\make up`                 |
+| `make down`              | `.\make down`               |
+| `make build-and-up`      | `.\make build-and-up`       |
+| `make restart`           | `.\make restart`            |
+| `make ps`                | `.\make ps`                 |
+| `make logs`              | `.\make logs`               |
+| `make logs-fe`           | `.\make logs-fe`            |
+| `make logs-be`           | `.\make logs-be`            |
+| `make db-migrate-dev`    | `.\make db-migrate-dev`     |
+| `make db-reset-dev`      | `.\make db-reset-dev`       |
+| `make prisma-studio-dev` | `.\make prisma-studio-dev`  |
+| `make help`              | `.\make help`               |
 
 #### Linux/macOS (Makefile 使用)
 
@@ -226,21 +275,25 @@ docker-compose exec frontend bash
 #### よく使うコマンド（クイックリファレンス）
 
 **初回セットアップ**
+
 - Linux/macOS: `make init`
 - Windows: `.\make init`
 
 **日常的な操作**
+
 - 起動: `make up` または `.\make up`
 - 停止: `make down` または `.\make down`
 - 再起動: `make restart` または `.\make restart`
 - 状態確認: `make ps` または `.\make ps`
 
 **ログ確認**
+
 - 全ログ: `make logs` または `.\make logs`
 - フロントエンド: `make logs-fe` または `.\make logs-fe`
 - バックエンド: `make logs-be` または `.\make logs-be`
 
 **データベース操作**
+
 - マイグレーション: `make db-migrate-dev` または `.\make db-migrate-dev`
 - リセット: `make db-reset-dev` または `.\make db-reset-dev`
 - Prisma Studio: `make prisma-studio-dev` または `.\make prisma-studio-dev`
