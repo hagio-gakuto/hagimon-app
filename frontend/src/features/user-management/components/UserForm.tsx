@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useForm, FormProvider } from "react-hook-form";
 import { Title, PageContainer, Button, Loading } from "@/components/ui";
-import { TextField, SelectField } from "@/components/form";
+import { TextField, SelectField, FormError } from "@/components/form";
 import { roleOptions, genderOptions } from "../constants/user.constants";
 import { useUserForm } from "../hooks/useUserForm";
 import type { UserRole, Gender } from "@/types/user";
@@ -58,11 +58,7 @@ export const UserForm = () => {
       <Title>{isEdit ? "ユーザー編集" : "ユーザー新規登録"}</Title>
 
       <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800 text-sm whitespace-pre-line">{error}</p>
-          </div>
-        )}
+        <FormError error={error} />
 
         <div key={formKey}>
           <FormProvider {...methods}>

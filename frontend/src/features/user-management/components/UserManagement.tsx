@@ -14,6 +14,7 @@ import { useUserManagement } from "@/features/user-management/hooks/useUserManag
 import { roleLabelMap, genderLabelMap } from "../constants/user.constants";
 import { errorMessages } from "@/constants/error-messages";
 import { UserSearchForm } from "./UserSearchForm";
+import { FormError } from "@/components/form";
 
 export const UserManagement = () => {
   const {
@@ -151,11 +152,7 @@ export const UserManagement = () => {
           </CsvExportButton>
         </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800 text-sm">{error}</p>
-          </div>
-        )}
+        <FormError error={error} />
 
         <Table
           columns={columns}

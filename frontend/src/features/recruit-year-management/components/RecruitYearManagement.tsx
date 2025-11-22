@@ -2,6 +2,7 @@
 
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import { Button, Loading, Title, Table, PageContainer } from "@/components/ui";
+import { FormError } from "@/components/form";
 import { useRecruitYearManagement } from "../hooks/useRecruitYearManagement";
 import { CreateYearDialog } from "./CreateYearDialog";
 import { EditYearDialog } from "./EditYearDialog";
@@ -36,11 +37,7 @@ export const RecruitYearManagement = () => {
         </Button>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
-          <p className="text-red-800 text-sm">{error}</p>
-        </div>
-      )}
+      <FormError error={error} />
 
       <div className="bg-white rounded-lg shadow-md p-6">
         <Table

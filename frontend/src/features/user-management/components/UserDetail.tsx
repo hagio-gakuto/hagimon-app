@@ -1,6 +1,7 @@
 "use client";
 
 import { Title, PageContainer, Loading } from "@/components/ui";
+import { FormError } from "@/components/form";
 import { useUserDetail } from "../hooks/useUserDetail";
 import { UserDetailError } from "./UserDetailError";
 import { UserDetailForm } from "./UserDetailForm";
@@ -45,11 +46,7 @@ export const UserDetail = ({ userId }: UserDetailProps) => {
       <Title>ユーザー詳細</Title>
 
       <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <p className="text-red-800 text-sm">{error}</p>
-          </div>
-        )}
+        <FormError error={error} />
 
         {isEditing ? (
           <UserDetailForm

@@ -9,7 +9,7 @@ import {
   CancelIcon,
   SaveIcon,
 } from "@/components/ui";
-import { TextField } from "@/components/form";
+import { TextField, FormError } from "@/components/form";
 import type { RecruitYearFormData } from "../hooks/useRecruitYearManagement";
 import type { RecruitYearResponseDto } from "@/types/recruit-year";
 
@@ -162,11 +162,7 @@ const EditYearFormContent = ({
         })}
       />
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800 text-sm">{error}</p>
-        </div>
-      )}
+      <FormError error={error} />
 
       <div className="flex gap-4 justify-end">
         <Button
