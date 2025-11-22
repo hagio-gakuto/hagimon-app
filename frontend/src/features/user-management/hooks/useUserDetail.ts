@@ -3,8 +3,8 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import type { UseFormSetError } from "react-hook-form";
 import { useBreadcrumb } from "@/contexts/BreadcrumbContext";
-import { apiClient, ApiClientError } from "@/libs/api-client";
-import { extractErrorMessage } from "@/libs/error-handler";
+import { apiClient } from "@/libs/api-client";
+import { extractErrorMessage, handleFormError } from "@/libs/error-handler";
 import { errorMessages } from "@/constants/error-messages";
 import type { UserResponseDto, UserRole, Gender } from "@/types/user";
 
@@ -56,8 +56,6 @@ export const useUserDetail = ({ userId }: UseUserDetailParams) => {
 
   const handleSubmit = useCallback(
     async (data: UserFormData, setFormError: UseFormSetError<UserFormData>) => {
-      console.log(data);
-      console.log(setFormError);
       if (!user) return;
 
       try {
@@ -76,25 +74,12 @@ export const useUserDetail = ({ userId }: UseUserDetailParams) => {
         setIsEditing(false);
         toast.success("ユーザーを更新しました");
       } catch (err) {
-        if (err instanceof ApiClientError && err.details) {
-          // サーバーからのバリデーションエラーを各フィールドに設定
-          err.details.forEach((detail) => {
-            const fieldName = detail.path[0] as keyof UserFormData;
-            if (fieldName) {
-              setFormError(fieldName, {
-                type: "server",
-                message: detail.message,
-              });
-            }
-          });
-        } else {
-          // バリデーションエラー以外のエラーは画面の上部に表示
-          const message = extractErrorMessage(
-            err,
-            errorMessages.userUpdateFailed
-          );
-          setError(message);
-        }
+        handleFormError(
+          err,
+          setFormError,
+          setError,
+          errorMessages.userUpdateFailed
+        );
       }
     },
     [user, fetchUser]

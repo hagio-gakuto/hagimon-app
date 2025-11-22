@@ -3,8 +3,8 @@ import toast from "react-hot-toast";
 import type { UseFormSetError } from "react-hook-form";
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import type { RecruitYearResponseDto } from "@/types/recruit-year";
-import { apiClient, ApiClientError } from "@/libs/api-client";
-import { extractErrorMessage } from "@/libs/error-handler";
+import { apiClient } from "@/libs/api-client";
+import { extractErrorMessage, handleFormError } from "@/libs/error-handler";
 
 export type RecruitYearFormData = {
   recruitYear: number;
@@ -67,22 +67,7 @@ export const useRecruitYearManagement = () => {
       setIsEditing(false);
       toast.success("年度を更新しました");
     } catch (err) {
-      if (err instanceof ApiClientError && err.details) {
-        // サーバーからのバリデーションエラーを各フィールドに設定
-        err.details.forEach((detail) => {
-          const fieldName = detail.path[0] as keyof RecruitYearFormData;
-          if (fieldName) {
-            setFormError(fieldName, {
-              type: "server",
-              message: detail.message,
-            });
-          }
-        });
-      } else {
-        // バリデーションエラー以外のエラーは画面の上部に表示
-        const message = extractErrorMessage(err, "更新に失敗しました");
-        setError(message);
-      }
+      handleFormError(err, setFormError, setError, "更新に失敗しました");
     } finally {
       setIsSubmitting(false);
     }
