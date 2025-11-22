@@ -70,7 +70,7 @@ export const UserDetailForm = ({
             <TextField
               name="firstName"
               label="名"
-              rules={{ required: "名は必須ですFE" }}
+              rules={{ required: "名は必須です" }}
             />
             <SelectField
               name="role"
