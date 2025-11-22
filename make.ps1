@@ -130,37 +130,87 @@ switch ($Command) {
         docker compose exec backend npm run test:dev
     }
     "db-only" {
+        Write-Host "Dockerが起動しているか確認しています..." -ForegroundColor Yellow
+        $null = docker info 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: Dockerが起動していません。Docker Desktopを起動してから再度実行してください。" -ForegroundColor Red
+            exit 1
+        }
         Write-Host "データベースのみをDockerで起動しています..." -ForegroundColor Yellow
-        docker compose up -d db
+        $dockerUp = docker compose up -d db 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: データベースコンテナの起動に失敗しました" -ForegroundColor Red
+            Write-Host $dockerUp -ForegroundColor Red
+            exit 1
+        }
         Write-Host "データベース起動完了！ポート5433で待機中です。" -ForegroundColor Green
     }
     "dev-setup" {
         Write-Host "ローカル開発環境のセットアップを開始します..." -ForegroundColor Green
         Write-Host "1. バックエンドの依存関係をインストールしています..." -ForegroundColor Yellow
         Set-Location backend
-        npm install
+        $null = npm install 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: バックエンドの依存関係のインストールに失敗しました" -ForegroundColor Red
+            Set-Location ..
+            exit 1
+        }
         Write-Host "2. フロントエンドの依存関係をインストールしています..." -ForegroundColor Yellow
         Set-Location ../frontend
-        npm install
+        $null = npm install 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: フロントエンドの依存関係のインストールに失敗しました" -ForegroundColor Red
+            Set-Location ..
+            exit 1
+        }
         Set-Location ..
-        Write-Host "3. データベースを起動しています..." -ForegroundColor Yellow
-        docker compose up -d db
-        Write-Host "4. PostgreSQLの起動を待っています..." -ForegroundColor Yellow
-        Start-Sleep -Seconds 5
-        Write-Host "5. Prismaクライアントを生成しています..." -ForegroundColor Yellow
+        Write-Host "3. Dockerが起動しているか確認しています..." -ForegroundColor Yellow
+        $null = docker info 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: Dockerが起動していません。Docker Desktopを起動してから再度実行してください。" -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "4. データベースを起動しています..." -ForegroundColor Yellow
+        $dockerUp = docker compose up -d db 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: データベースコンテナの起動に失敗しました" -ForegroundColor Red
+            Write-Host $dockerUp -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "5. PostgreSQLの起動を待っています..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 10
+        Write-Host "6. Prismaクライアントを生成しています..." -ForegroundColor Yellow
         $env:DATABASE_URL = if ($env:DATABASE_URL) { $env:DATABASE_URL } else { "postgresql://postgres:postgres@localhost:5433/app?schema=public" }
         Set-Location backend
-        npm run generate
+        $prismaGenerate = npm run generate 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: Prismaクライアントの生成に失敗しました" -ForegroundColor Red
+            Write-Host $prismaGenerate -ForegroundColor Red
+            Set-Location ..
+            exit 1
+        }
+        Write-Host "7. データベースマイグレーションを実行しています..." -ForegroundColor Yellow
+        $migrateResult = npm run migrate:dev 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: データベースマイグレーションに失敗しました" -ForegroundColor Red
+            Write-Host $migrateResult -ForegroundColor Red
+            Set-Location ..
+            exit 1
+        }
+        Write-Host "8. シードデータを投入しています..." -ForegroundColor Yellow
+        $seedResult = npm run seed 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "エラー: シードデータの投入に失敗しました" -ForegroundColor Red
+            Write-Host $seedResult -ForegroundColor Red
+            Set-Location ..
+            exit 1
+        }
         Set-Location ..
         Write-Host ""
         Write-Host "セットアップ完了！" -ForegroundColor Green
         Write-Host ""
-        Write-Host "次に以下を実行してください："
-        Write-Host "  1. データベースマイグレーションを実行:"
-        Write-Host "     .\make migrate-local"
-        Write-Host ""
-        Write-Host "  2. 開発サーバーを起動:"
-        Write-Host "     .\make dev-be  （別ターミナルで .\make dev-fe）"
+        Write-Host "次に開発サーバーを起動してください："
+        Write-Host "  .\make dev-be  （別ターミナルで .\make dev-fe）"
     }
     "dev-be" {
         Write-Host "ローカルでバックエンドを起動しています..." -ForegroundColor Yellow
