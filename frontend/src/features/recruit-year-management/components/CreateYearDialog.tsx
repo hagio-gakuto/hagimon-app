@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, ColorPicker, Button } from "@/components/ui";
+import { Dialog, ColorPicker, Button, CancelIcon } from "@/components/ui";
 import { TextField } from "@/components/form";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
@@ -169,7 +169,10 @@ const CreateYearFormContent = ({
           onClick={onClose}
           disabled={isSubmitting}
         >
-          キャンセル
+          <div className="flex items-center gap-2">
+            <CancelIcon />
+            <span>キャンセル</span>
+          </div>
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "作成中..." : "作成"}

@@ -2,7 +2,7 @@
 
 import { Textarea } from "../ui/Textarea";
 import { FormField } from "./FormField";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useFormState } from "react-hook-form";
 
 type TextareaFieldProps = {
   name: string;
@@ -17,11 +17,11 @@ export const TextareaField = ({
   rules,
   placeholder,
 }: TextareaFieldProps) => {
-  const { register, formState } = useFormContext();
-  const errors = formState.errors;
+  const { register, control } = useFormContext();
+  const { errors } = useFormState({ control });
 
   return (
-    <FormField name={name} label={label} rules={rules}>
+    <FormField name={name} label={label}>
       <Textarea
         {...register(name, rules)}
         placeholder={placeholder}

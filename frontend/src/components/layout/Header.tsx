@@ -32,6 +32,7 @@ export const Header = () => {
 
   const navigationLinks = [
     { label: "ダッシュボード", href: "/" },
+    { label: "応募者検索", href: "/applicants" },
     { label: "マイページ", href: "/mypage" },
   ];
 
@@ -68,7 +69,6 @@ export const Header = () => {
                 <div className="w-48">
                   <Select
                     id="recruit-year-select"
-                    // label="対象年度"
                     value={selectedRecruitYear.recruitYear}
                     onChange={handleYearChange}
                     options={recruitYears.map((year) => ({

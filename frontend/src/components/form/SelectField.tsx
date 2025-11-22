@@ -2,7 +2,7 @@
 
 import { Select } from "../ui/Select";
 import { FormField } from "./FormField";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useFormState } from "react-hook-form";
 import type { SelectOption } from "../ui/Select";
 
 type SelectFieldProps = {
@@ -18,11 +18,11 @@ export const SelectField = ({
   rules,
   options,
 }: SelectFieldProps) => {
-  const { register, formState } = useFormContext();
-  const errors = formState.errors;
+  const { register, control } = useFormContext();
+  const { errors } = useFormState({ control });
 
   return (
-    <FormField name={name} label={label} rules={rules}>
+    <FormField name={name} label={label}>
       <Select
         {...register(name, rules)}
         options={options}

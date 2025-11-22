@@ -1,21 +1,20 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useFormState } from "react-hook-form";
 
 type FormFieldProps = {
   name: string;
   label?: string;
   children?: React.ReactNode;
-  rules?: Parameters<ReturnType<typeof useFormContext>["register"]>[1];
 };
 
-export const FormField = ({ name, label, children, rules }: FormFieldProps) => {
-  const {
-    register,
-    formState: { errors },
-  } = useFormContext();
+export const FormField = ({ name, label, children }: FormFieldProps) => {
+  const { control } = useFormContext();
+  const { errors } = useFormState({ control });
 
-  const errorMessage = errors[name]?.message as string | undefined;
+  const fieldError = errors[name];
+  const errorMessage =
+    typeof fieldError?.message === "string" ? fieldError.message : undefined;
 
   return (
     <div className="flex flex-col gap-1 w-full">
@@ -23,7 +22,7 @@ export const FormField = ({ name, label, children, rules }: FormFieldProps) => {
         <label className="font-medium text-sm text-gray-700">{label}</label>
       )}
 
-      {children || <input {...register(name, rules)} />}
+      {children}
 
       {errorMessage && (
         <p className="text-red-500 text-xs" role="alert">

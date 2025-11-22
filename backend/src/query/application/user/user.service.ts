@@ -4,6 +4,7 @@ import { UserResponseDto } from '../../dto/user-response.dto';
 import { UserListResponseDto } from '../../dto/user-list-response.dto';
 import { NotFoundError } from '../../../common/errors/not-found.error';
 import type { UserRole, Gender } from '../../types/user.types';
+import { User } from '@prisma/client';
 
 type FindManyParams = {
   page?: number;
@@ -95,6 +96,49 @@ export class UserService {
       total,
       page,
       pageSize,
+    });
+  }
+
+  async findManyForExport({
+    search,
+    role,
+    gender,
+  }: {
+    search?: string;
+    role?: UserRole;
+    gender?: Gender;
+  }): Promise<UserResponseDto[]> {
+    const users = await this.userDao.findManyForExport({
+      search,
+      role,
+      gender,
+    });
+
+    return users.map((user: User) => {
+      const {
+        id,
+        email,
+        role: userRole,
+        firstName,
+        lastName,
+        gender: userGender,
+        createdAt,
+        createdBy,
+        updatedAt,
+        updatedBy,
+      } = user;
+      return new UserResponseDto({
+        id,
+        email,
+        role: userRole,
+        firstName,
+        lastName,
+        gender: userGender,
+        createdAt,
+        createdBy,
+        updatedAt,
+        updatedBy,
+      });
     });
   }
 }

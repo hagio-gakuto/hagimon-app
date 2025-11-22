@@ -17,7 +17,7 @@ type FindManyParams = {
 export class UserDao {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne({ id }: { id: string }): Promise<UserWithRelations | null> {
+  async findOne({ id }: { id: string }): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { id },
     });
@@ -65,5 +65,40 @@ export class UserDao {
     ]);
 
     return { users, total };
+  }
+
+  async findManyForExport({
+    search,
+    role,
+    gender,
+  }: {
+    search?: string;
+    role?: UserRole;
+    gender?: Gender;
+  }): Promise<User[]> {
+    const where: Prisma.UserWhereInput = {};
+
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (role) {
+      where.role = role;
+    }
+
+    if (gender) {
+      where.gender = gender;
+    }
+
+    return this.prisma.user.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 }

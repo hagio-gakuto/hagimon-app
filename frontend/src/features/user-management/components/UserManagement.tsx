@@ -1,36 +1,39 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useBreadcrumb } from "@/contexts/BreadcrumbContext";
-import { Table, Title, PageContainer, Button, Loading } from "@/components/ui";
+import {
+  Table,
+  Title,
+  PageContainer,
+  Button,
+  Loading,
+  CsvExportButton,
+  CsvUploadButton,
+  PlusIcon,
+} from "@/components/ui";
 import { useUserManagement } from "@/features/user-management/hooks/useUserManagement";
 import { formatDateToJST } from "@/libs/date-utils";
 import { roleLabelMap, genderLabelMap } from "../constants/user.constants";
+import { errorMessages } from "@/constants/error-messages";
 import { UserSearchForm } from "./UserSearchForm";
 
 export const UserManagement = () => {
-  const router = useRouter();
-  const { setItems } = useBreadcrumb();
   const {
     users,
     total,
     page,
     isLoading,
     error,
+    setError,
     handleSearch,
     handleReset,
     setPage,
     searchParams,
+    handleRowClick,
+    handleExportCSV,
+    handleDownloadTemplateCSV,
+    handleDownloadEditTemplateCSV,
+    handleUploadCSV,
   } = useUserManagement();
-
-  useEffect(() => {
-    setItems([{ label: "ホーム", href: "/" }, { label: "ユーザー管理" }]);
-  }, [setItems]);
-
-  const handleRowClick = (row: { id: string }) => {
-    router.push(`/master/user-management/${row.id}`);
-  };
 
   const columns = [
     { key: "email", label: "メールアドレス" },
@@ -47,7 +50,7 @@ export const UserManagement = () => {
           size="sm"
           onClick={(e) => {
             e.stopPropagation();
-            router.push(`/master/user-management/${row.id}`);
+            handleRowClick(row);
           }}
         >
           詳細・編集
@@ -76,7 +79,15 @@ export const UserManagement = () => {
 
   return (
     <PageContainer>
-      <Title>ユーザー管理</Title>
+      <div className="flex justify-between items-center">
+        <Title>ユーザー管理</Title>
+        <Button variant="primary" onClick={() => handleRowClick({ id: "new" })}>
+          <div className="flex items-center gap-2">
+            <PlusIcon />
+            <span>新規登録</span>
+          </div>
+        </Button>
+      </div>
 
       <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
         <UserSearchForm
@@ -84,6 +95,63 @@ export const UserManagement = () => {
           onReset={handleReset}
           searchParams={searchParams}
         />
+
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={handleDownloadTemplateCSV}>
+            一括登録
+          </Button>
+          <CsvUploadButton
+            onUpload={async (file) => {
+              try {
+                await handleUploadCSV(file, false);
+              } catch (err) {
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : errorMessages.csvUploadFailed
+                );
+              }
+            }}
+            variant="secondary"
+          >
+            一括登録
+          </CsvUploadButton>
+          <Button variant="secondary" onClick={handleDownloadEditTemplateCSV}>
+            一括編集
+          </Button>
+          <CsvUploadButton
+            onUpload={async (file) => {
+              try {
+                await handleUploadCSV(file, true);
+              } catch (err) {
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : errorMessages.csvUploadFailed
+                );
+              }
+            }}
+            variant="secondary"
+          >
+            一括編集
+          </CsvUploadButton>
+          <CsvExportButton
+            onExport={async () => {
+              try {
+                await handleExportCSV();
+              } catch (err) {
+                setError(
+                  err instanceof Error
+                    ? err.message
+                    : errorMessages.csvExportFailed
+                );
+              }
+            }}
+            variant="outline"
+          >
+            CSV出力
+          </CsvExportButton>
+        </div>
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4">

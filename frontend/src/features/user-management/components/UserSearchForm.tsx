@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { Button } from "@/components/ui";
+import { Button, SearchIcon, ResetIcon } from "@/components/ui";
 import { TextField, SelectField } from "@/components/form";
 import { roleOptions, genderOptions } from "../constants/user.constants";
 import type { UserRole, Gender } from "@/types/user";
@@ -29,19 +28,6 @@ export const UserSearchForm = ({
     mode: "onBlur",
   });
 
-  const prevSearchParamsRef = useRef<UserSearchFormData>(searchParams);
-
-  useEffect(() => {
-    if (
-      JSON.stringify(prevSearchParamsRef.current) !==
-      JSON.stringify(searchParams)
-    ) {
-      methods.reset(searchParams);
-      prevSearchParamsRef.current = searchParams;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
-
   const handleSubmit = methods.handleSubmit((data) => {
     onSearch(data);
   });
@@ -52,28 +38,38 @@ export const UserSearchForm = ({
   };
 
   return (
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit} noValidate className="space-y-6">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <TextField
-              name="search"
-              label="検索"
-              placeholder="メールアドレス、名前で検索"
-            />
+    <div key={JSON.stringify(searchParams)}>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <TextField
+                name="search"
+                label="検索"
+                placeholder="メールアドレス、名前で検索"
+              />
+            </div>
+            <div className="w-40">
+              <SelectField name="role" label="権限" options={roleOptions} />
+            </div>
+            <div className="w-40">
+              <SelectField name="gender" label="性別" options={genderOptions} />
+            </div>
+            <Button type="submit">
+              <div className="flex items-center gap-2">
+                <SearchIcon />
+                <span>検索</span>
+              </div>
+            </Button>
+            <Button type="button" variant="outline" onClick={handleReset}>
+              <div className="flex items-center gap-2">
+                <ResetIcon />
+                <span>リセット</span>
+              </div>
+            </Button>
           </div>
-          <div className="w-40">
-            <SelectField name="role" label="権限" options={roleOptions} />
-          </div>
-          <div className="w-40">
-            <SelectField name="gender" label="性別" options={genderOptions} />
-          </div>
-          <Button type="submit">検索</Button>
-          <Button type="button" variant="outline" onClick={handleReset}>
-            リセット
-          </Button>
-        </div>
-      </form>
-    </FormProvider>
+        </form>
+      </FormProvider>
+    </div>
   );
 };
