@@ -1,4 +1,5 @@
 import { Controller, Post, Put, Body, Param } from '@nestjs/common';
+import { z } from 'zod';
 import { UserService } from '../../application/user/user.service';
 import type {
   CreateUserRequestDto,
@@ -7,7 +8,6 @@ import type {
 import {
   createUserRequestSchema,
   updateUserRequestBodySchema,
-  updateUserRequestSchema,
 } from '../../dto/user.dto';
 import type { BulkCreateUserRequestDto } from '../../dto/user-bulk.dto';
 import { bulkCreateUserRequestSchema } from '../../dto/user-bulk.dto';
@@ -38,28 +38,24 @@ export class UserController {
 
   @Put(':id')
   async update(
-    @Param('id') id: string,
+    @Param(
+      'id',
+      new ZodValidationPipe(z.string().min(1, 'ユーザーIDは必須です')),
+    )
+    id: string,
     @Body(new ZodValidationPipe(updateUserRequestBodySchema))
     body: Omit<UpdateUserRequestDto, 'id'>,
   ): Promise<UserResponseDto> {
     // TODO: 認証情報からuserIdを取得（現在はスタブ）
     const userId = 'system';
 
-    const dto: UpdateUserRequestDto = {
-      id,
-      ...body,
-    };
-
-    const validationPipe = new ZodValidationPipe(updateUserRequestSchema);
-    const validatedDto = validationPipe.transform<UpdateUserRequestDto>(dto);
-
     return this.userService.update({
-      id: validatedDto.id,
-      email: validatedDto.email,
-      role: validatedDto.role,
-      firstName: validatedDto.firstName,
-      lastName: validatedDto.lastName,
-      gender: validatedDto.gender,
+      id,
+      email: body.email,
+      role: body.role,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      gender: body.gender,
       userId,
     });
   }

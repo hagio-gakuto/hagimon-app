@@ -9,7 +9,7 @@ export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(user: UserEntity): Promise<User> {
-    return await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         email: user.email,
         role: user.role,
@@ -23,8 +23,11 @@ export class UserRepository implements IUserRepository {
   }
 
   async update(user: UserEntity): Promise<User> {
-    return await this.prisma.user.update({
-      where: { id: user.id! },
+    if (!user.id) {
+      throw new Error('UserEntity.id is required when updating a user');
+    }
+    return this.prisma.user.update({
+      where: { id: user.id },
       data: {
         email: user.email,
         role: user.role,

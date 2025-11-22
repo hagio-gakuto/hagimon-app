@@ -29,9 +29,13 @@ export const convertToCSV = ({
         if (value === null || value === undefined) {
           return "";
         }
-        // 文字列に変換し、カンマや改行を含む場合はダブルクォートで囲む
+        // 文字列に変換し、ダブルクォート、カンマ、改行のいずれかを含む場合はダブルクォートで囲む
         const stringValue = String(value);
-        if (stringValue.includes(",") || stringValue.includes("\n")) {
+        if (
+          stringValue.includes('"') ||
+          stringValue.includes(",") ||
+          stringValue.includes("\n")
+        ) {
           return `"${stringValue.replace(/"/g, '""')}"`;
         }
         return stringValue;
