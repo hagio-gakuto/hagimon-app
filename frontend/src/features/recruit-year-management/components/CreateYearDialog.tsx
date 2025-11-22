@@ -1,7 +1,7 @@
 "use client";
 
-import { Dialog, ColorPicker, Button } from "@/components/ui";
-import { TextField } from "@/components/form";
+import { Dialog, ColorPicker, Button, CancelIcon } from "@/components/ui";
+import { TextField, FormError } from "@/components/form";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import type { RecruitYearFormData } from "../hooks/useRecruitYearManagement";
@@ -156,11 +156,7 @@ const CreateYearFormContent = ({
         })}
       />
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
-          <p className="text-red-800 text-sm">{error}</p>
-        </div>
-      )}
+      <FormError error={error} />
 
       <div className="flex gap-4 justify-end">
         <Button
@@ -169,7 +165,10 @@ const CreateYearFormContent = ({
           onClick={onClose}
           disabled={isSubmitting}
         >
-          キャンセル
+          <div className="flex items-center gap-2">
+            <CancelIcon />
+            <span>キャンセル</span>
+          </div>
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "作成中..." : "作成"}

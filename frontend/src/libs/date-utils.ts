@@ -10,3 +10,12 @@ export const formatDateToJST = (date: string | Date): string => {
     second: "2-digit",
   });
 };
+
+export const formatDateToISOString = (date?: Date | string): string => {
+  const dateObj = date
+    ? typeof date === "string"
+      ? new Date(date)
+      : date
+    : new Date();
+  return dateObj.toISOString().split("T")[0];
+};

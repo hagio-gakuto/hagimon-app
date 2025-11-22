@@ -13,13 +13,21 @@ export type ApiError = {
   errorCode?: string;
   message: string;
   timestamp?: string;
+  details?: Array<{
+    path: (string | number)[];
+    message: string;
+  }>;
 };
 
 export class ApiClientError extends Error {
   constructor(
     public statusCode: number,
     public errorCode: string | undefined,
-    message: string
+    message: string,
+    public details?: Array<{
+      path: (string | number)[];
+      message: string;
+    }>
   ) {
     super(message);
     this.name = "ApiClientError";
@@ -63,7 +71,12 @@ export const apiClient = async <T>(
       errorData.message ||
       `HTTP error! status: ${statusCode}`;
 
-    throw new ApiClientError(statusCode, errorData.errorCode, message);
+    throw new ApiClientError(
+      statusCode,
+      errorData.errorCode,
+      message,
+      errorData.details
+    );
   }
 
   return response.json();

@@ -15,7 +15,7 @@ type DashboardLink = {
 
 const dashboardLinks: DashboardLink[] = [
   {
-    href: "/applicants/search",
+    href: "/applicants",
     label: "応募者検索",
     description: "応募者情報を検索・閲覧します",
     requiredRole: "user",

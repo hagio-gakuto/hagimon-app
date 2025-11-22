@@ -1,5 +1,5 @@
 import type { UserRole, Gender } from "@/types/user";
-import type { SelectOption } from "@/components/ui/Select";
+import type { SelectOption } from "@/components/ui";
 
 export const roleOptions: SelectOption[] = [
   { value: "", label: "すべて" },

@@ -14,7 +14,6 @@ import { INJECTION_TOKENS } from '../../command/constants/injection-tokens';
       provide: INJECTION_TOKENS.IRecruitYearRepository,
       useClass: RecruitYearRepository,
     },
-    RecruitYearRepository,
     RecruitYearDao,
     PrismaService,
   ],

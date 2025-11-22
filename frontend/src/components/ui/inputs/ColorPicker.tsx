@@ -70,7 +70,7 @@ export const ColorPicker = ({
           <>
             <button
               type="button"
-              className="fixed inset-0 z-[100]"
+              className="fixed inset-0 z-40"
               onClick={() => setIsOpen(false)}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
@@ -79,14 +79,7 @@ export const ColorPicker = ({
               }}
               aria-label="カラーピッカーを閉じる"
             />
-            <div
-              className="fixed z-[101] mt-2"
-              style={{
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
-            >
+            <div className="relative z-50 mt-2">
               <SketchPicker color={pickerColor} onChange={handleColorChange} />
             </div>
           </>

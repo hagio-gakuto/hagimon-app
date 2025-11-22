@@ -8,6 +8,7 @@ type UserWithRelations = User;
 type FindManyParams = {
   page?: number;
   pageSize?: number;
+  ids?: string[];
   search?: string;
   role?: UserRole;
   gender?: Gender;
@@ -17,7 +18,7 @@ type FindManyParams = {
 export class UserDao {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne({ id }: { id: string }): Promise<UserWithRelations | null> {
+  async findOne({ id }: { id: string }): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { id },
     });
@@ -26,6 +27,7 @@ export class UserDao {
   async findMany({
     page = 1,
     pageSize = 10,
+    ids,
     search,
     role,
     gender,
@@ -35,6 +37,10 @@ export class UserDao {
   }> {
     const skip = (page - 1) * pageSize;
     const where: Prisma.UserWhereInput = {};
+
+    if (ids && ids.length > 0) {
+      where.id = { in: ids };
+    }
 
     if (search) {
       where.OR = [
@@ -65,5 +71,46 @@ export class UserDao {
     ]);
 
     return { users, total };
+  }
+
+  async findManyForExport({
+    ids,
+    search,
+    role,
+    gender,
+  }: {
+    ids?: string[];
+    search?: string;
+    role?: UserRole;
+    gender?: Gender;
+  }): Promise<User[]> {
+    const where: Prisma.UserWhereInput = {};
+
+    if (ids && ids.length > 0) {
+      where.id = { in: ids };
+    }
+
+    if (search) {
+      where.OR = [
+        { email: { contains: search, mode: 'insensitive' } },
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (role) {
+      where.role = role;
+    }
+
+    if (gender) {
+      where.gender = gender;
+    }
+
+    return this.prisma.user.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 }

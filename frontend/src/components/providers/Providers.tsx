@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Toaster } from "react-hot-toast";
 import {
   RecruitYearProvider,
   useRecruitYear,
@@ -20,6 +21,7 @@ const ProvidersContent = ({ children }: ProvidersProps) => {
 
   return (
     <>
+      <Toaster position="top-right" />
       <Header />
       <main className="flex-1 min-h-0 flex flex-col">
         {isLoading || !selectedRecruitYear ? <Loading /> : children}

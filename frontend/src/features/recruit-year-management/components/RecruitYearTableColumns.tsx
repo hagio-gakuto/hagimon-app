@@ -1,57 +1,34 @@
+import { Button } from "@/components/ui";
 import type { RecruitYearResponseDto } from "@/types/recruit-year";
-import type { RecruitYearFormData } from "../hooks/useRecruitYearManagement";
-import { RecruitYearCell } from "./RecruitYearCell";
-import { DisplayNameCell } from "./DisplayNameCell";
-import { ThemeColorCell } from "./ThemeColorCell";
-import { ActionsCell } from "./ActionsCell";
 
 type ColumnProps = {
-  editingRow: RecruitYearFormData | null;
-  isSubmitting: boolean;
   startEdit: (year: RecruitYearResponseDto) => void;
-  cancelEdit: () => void;
 };
 
-export const getTableColumns = ({
-  editingRow,
-  isSubmitting,
-  startEdit,
-  cancelEdit,
-}: ColumnProps) => {
+export const getTableColumns = ({ startEdit }: ColumnProps) => {
   return [
-    {
-      key: "recruitYear",
-      label: "年度",
-      render: (value: unknown, row: RecruitYearResponseDto) => (
-        <RecruitYearCell value={value} row={row} editingRow={editingRow} />
-      ),
-    },
-    {
-      key: "displayName",
-      label: "表示名",
-      render: (value: unknown, row: RecruitYearResponseDto) => (
-        <DisplayNameCell value={value} row={row} editingRow={editingRow} />
-      ),
-    },
+    { key: "recruitYear", label: "年度" },
+    { key: "displayName", label: "表示名" },
     {
       key: "themeColor",
       label: "テーマカラー",
-      render: (value: unknown, row: RecruitYearResponseDto) => (
-        <ThemeColorCell value={value} row={row} editingRow={editingRow} />
+      render: (_value: unknown, row: RecruitYearResponseDto) => (
+        <div className="flex items-center gap-2">
+          <div
+            className="w-8 h-8 rounded border border-gray-300"
+            style={{ backgroundColor: row.themeColor }}
+          />
+          <span className="text-sm">{row.themeColor}</span>
+        </div>
       ),
     },
     {
       key: "actions",
       label: "操作",
-      render: (value: unknown, row: RecruitYearResponseDto) => (
-        <ActionsCell
-          value={value}
-          row={row}
-          editingRow={editingRow}
-          isSubmitting={isSubmitting}
-          startEdit={startEdit}
-          cancelEdit={cancelEdit}
-        />
+      render: (_value: unknown, row: RecruitYearResponseDto) => (
+        <Button size="sm" variant="outline" onClick={() => startEdit(row)}>
+          編集
+        </Button>
       ),
     },
   ];

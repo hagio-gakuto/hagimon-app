@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "./Button";
+import { Button } from "./buttons";
 import { DEFAULT_PAGE_SIZE } from "@/constants/page";
 
 const generatePageNumbers = (

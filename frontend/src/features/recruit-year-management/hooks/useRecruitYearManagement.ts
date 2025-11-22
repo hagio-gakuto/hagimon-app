@@ -1,16 +1,12 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
+import type { UseFormSetError } from "react-hook-form";
 import { useRecruitYear } from "@/contexts/RecruitYearContext";
 import type { RecruitYearResponseDto } from "@/types/recruit-year";
 import { apiClient } from "@/libs/api-client";
-import { extractErrorMessage } from "@/libs/error-handler";
+import { extractErrorMessage, handleFormError } from "@/libs/error-handler";
 
 export type RecruitYearFormData = {
-  recruitYear: number;
-  displayName: string;
-  themeColor: string;
-};
-
-type EditingRow = {
   recruitYear: number;
   displayName: string;
   themeColor: string;
@@ -23,26 +19,30 @@ export const useRecruitYearManagement = () => {
     setSelectedRecruitYear,
     setRecruitYears,
   } = useRecruitYear();
-  const [editingRow, setEditingRow] = useState<EditingRow | null>(null);
+  const [editingYear, setEditingYear] = useState<RecruitYearResponseDto | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const startEdit = (year: RecruitYearResponseDto) => {
-    setEditingRow({
-      recruitYear: year.recruitYear,
-      displayName: year.displayName,
-      themeColor: year.themeColor,
-    });
+    setEditingYear(year);
+    setIsEditing(true);
     setError(null);
   };
 
   const cancelEdit = () => {
-    setEditingRow(null);
+    setEditingYear(null);
+    setIsEditing(false);
     setError(null);
   };
 
-  const handleUpdate = async (data: RecruitYearFormData) => {
+  const handleUpdate = async (
+    data: RecruitYearFormData,
+    setFormError: UseFormSetError<RecruitYearFormData>
+  ) => {
     try {
       setIsSubmitting(true);
       setError(null);
@@ -63,10 +63,11 @@ export const useRecruitYearManagement = () => {
         setSelectedRecruitYear(updated);
       }
 
-      setEditingRow(null);
+      setEditingYear(null);
+      setIsEditing(false);
+      toast.success("年度を更新しました");
     } catch (err) {
-      const message = extractErrorMessage(err, "更新に失敗しました");
-      setError(message);
+      handleFormError(err, setFormError, setError, "更新に失敗しました");
     } finally {
       setIsSubmitting(false);
     }
@@ -89,7 +90,9 @@ export const useRecruitYearManagement = () => {
       );
       setRecruitYears(updatedYears);
       setIsCreating(false);
+      toast.success("年度を作成しました");
     } catch (err) {
+      // 作成時のエラーは画面の上部に表示
       const message = extractErrorMessage(err, "作成に失敗しました");
       setError(message);
     } finally {
@@ -98,11 +101,13 @@ export const useRecruitYearManagement = () => {
   };
 
   return {
-    editingRow,
+    editingYear,
     isSubmitting,
     error,
     isCreating,
     setIsCreating,
+    isEditing,
+    setIsEditing,
     startEdit,
     cancelEdit,
     handleUpdate,
