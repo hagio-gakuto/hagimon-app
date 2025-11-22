@@ -1,4 +1,4 @@
-# はぎもん: 仮想マッチングアプリ 💘
+# Atsys
 
 このプロジェクトは、モダンな技術スタックを用いた Web アプリケーション開発の実践的な学習の場として構築された、仮想マッチングアプリケーションです。
 
@@ -131,6 +131,8 @@ docker-compose exec backend npx prisma migrate dev
 
 #### セットアップ手順
 
+##### Linux/macOS (Makefile 使用)
+
 ```bash
 # 1. ローカル開発環境のセットアップ
 make dev-setup
@@ -139,6 +141,8 @@ make dev-setup
 export DATABASE_URL=postgresql://postgres:postgres@localhost:5433/app?schema=public
 
 # 3. データベースマイグレーション
+make migrate-local
+# または
 cd backend && npm run migrate:dev
 
 # 4. バックエンドとフロントエンドを別々のターミナルで起動
@@ -154,7 +158,27 @@ make dev-fe
 cd frontend && npm run dev
 ```
 
+##### Windows (PowerShell 使用)
+
+```powershell
+# 1. ローカル開発環境のセットアップ
+.\make dev-setup
+
+# 2. データベースマイグレーション
+.\make migrate-local
+
+# 3. バックエンドとフロントエンドを別々のターミナルで起動
+
+# 【ターミナル1】バックエンド
+.\make dev-be
+
+# 【ターミナル2】フロントエンド
+.\make dev-fe
+```
+
 #### ローカル開発用コマンド
+
+##### Linux/macOS (Makefile 使用)
 
 ```bash
 # データベースのみDockerで起動
@@ -169,9 +193,49 @@ make dev-be
 # ローカルでフロントエンドを起動
 make dev-fe
 
+# ローカルでマイグレーションを実行
+make migrate-local
+
+# ローカルでPrismaクライアントを生成
+make generate-local
+
+# ローカルでシードデータを投入
+make seed-local
+
+# ローカルでPrisma Studioを起動
+make studio-local
+
 # 環境変数の設定方法（.zshrc や .bashrc に追加すると便利）
 echo 'export DATABASE_URL=postgresql://postgres:postgres@localhost:5433/app?schema=public' >> ~/.zshrc
 source ~/.zshrc
+```
+
+##### Windows (PowerShell 使用)
+
+```powershell
+# データベースのみDockerで起動
+.\make db-only
+
+# ローカル開発環境のセットアップ（初回のみ）
+.\make dev-setup
+
+# ローカルでバックエンドを起動
+.\make dev-be
+
+# ローカルでフロントエンドを起動
+.\make dev-fe
+
+# ローカルでマイグレーションを実行
+.\make migrate-local
+
+# ローカルでPrismaクライアントを生成
+.\make generate-local
+
+# ローカルでシードデータを投入
+.\make seed-local
+
+# ローカルでPrisma Studioを起動
+.\make studio-local
 ```
 
 ### 5. 開発時の便利なコマンド（Docker 使用時）
@@ -194,6 +258,14 @@ Windows ユーザー向け：以下は対応するコマンドです。
 | `make db-migrate-dev`    | `.\make db-migrate-dev`     |
 | `make db-reset-dev`      | `.\make db-reset-dev`       |
 | `make prisma-studio-dev` | `.\make prisma-studio-dev`  |
+| `make db-only`           | `.\make db-only`            |
+| `make dev-setup`         | `.\make dev-setup`          |
+| `make dev-be`            | `.\make dev-be`             |
+| `make dev-fe`            | `.\make dev-fe`             |
+| `make migrate-local`     | `.\make migrate-local`      |
+| `make generate-local`    | `.\make generate-local`     |
+| `make seed-local`        | `.\make seed-local`         |
+| `make studio-local`      | `.\make studio-local`       |
 | `make help`              | `.\make help`               |
 
 #### Linux/macOS (Makefile 使用)

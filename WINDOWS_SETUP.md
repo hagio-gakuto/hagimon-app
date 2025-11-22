@@ -1,16 +1,16 @@
-# Windows環境セットアップガイド
+# Windows 環境セットアップガイド
 
-このガイドは、Windows環境でこのプロジェクトをセットアップする方法を説明します。
+このガイドは、Windows 環境でこのプロジェクトをセットアップする方法を説明します。
 
-## Windowsでの対応について
+## Windows での対応について
 
-Windowsでは`make`コマンドが標準では利用できないため、PowerShellスクリプトを使用して同等の機能を提供しています。
+Windows では`make`コマンドが標準では利用できないため、PowerShell スクリプトを使用して同等の機能を提供しています。
 
 ## 必要なソフトウェア
 
 - Docker Desktop for Windows
 - Git for Windows
-- PowerShell (Windows標準搭載)
+- PowerShell (Windows 標準搭載)
 
 ## セットアップ手順
 
@@ -28,9 +28,10 @@ cd hagimon-app
 ```
 
 このコマンドは以下を自動で実行します：
-- Dockerイメージのビルド
+
+- Docker イメージのビルド
 - コンテナの起動
-- PostgreSQLの起動待機
+- PostgreSQL の起動待機
 - データベースマイグレーションの実行
 
 ### 3. アクセス
@@ -96,36 +97,93 @@ cd hagimon-app
 .\make down-clean
 ```
 
+### ローカル開発環境（Docker を使わない）
+
+データベースは Docker で起動し、バックエンドとフロントエンドはローカルで実行する場合：
+
+```powershell
+# 1. ローカル開発環境のセットアップ（初回のみ）
+.\make dev-setup
+
+# 2. データベースマイグレーション
+.\make migrate-local
+
+# 3. バックエンドとフロントエンドを別々のターミナルで起動
+
+# 【ターミナル1】バックエンド
+.\make dev-be
+
+# 【ターミナル2】フロントエンド
+.\make dev-fe
+```
+
+#### ローカル開発用コマンド
+
+```powershell
+# データベースのみDockerで起動
+.\make db-only
+
+# ローカル開発環境のセットアップ（初回のみ）
+.\make dev-setup
+
+# ローカルでバックエンドを起動
+.\make dev-be
+
+# ローカルでフロントエンドを起動
+.\make dev-fe
+
+# ローカルでマイグレーションを実行
+.\make migrate-local
+
+# ローカルでPrismaクライアントを生成
+.\make generate-local
+
+# ローカルでシードデータを投入
+.\make seed-local
+
+# ローカルでPrisma Studioを起動
+.\make studio-local
+```
+
 ### ヘルプの表示
 
 利用可能な全コマンドを表示：
+
 ```powershell
 .\make help
 ```
 
 ## Makefile コマンドとの対応
 
-| Makefile コマンド | Windows PowerShell コマンド |
-|-------------------|---------------------------|
-| `make init` | `.\make init` |
-| `make up` | `.\make up` |
-| `make down` | `.\make down` |
-| `make build-and-up` | `.\make build-and-up` |
-| `make restart` | `.\make restart` |
-| `make ps` | `.\make ps` |
-| `make logs` | `.\make logs` |
-| `make logs-fe` | `.\make logs-fe` |
-| `make logs-be` | `.\make logs-be` |
-| `make db-migrate-dev` | `.\make db-migrate-dev` |
-| `make db-reset-dev` | `.\make db-reset-dev` |
-| `make prisma-studio-dev` | `.\make prisma-studio-dev` |
-| `make help` | `.\make help` |
+| Makefile コマンド        | Windows PowerShell コマンド |
+| ------------------------ | --------------------------- |
+| `make init`              | `.\make init`               |
+| `make up`                | `.\make up`                 |
+| `make down`              | `.\make down`               |
+| `make build-and-up`      | `.\make build-and-up`       |
+| `make restart`           | `.\make restart`            |
+| `make ps`                | `.\make ps`                 |
+| `make logs`              | `.\make logs`               |
+| `make logs-fe`           | `.\make logs-fe`            |
+| `make logs-be`           | `.\make logs-be`            |
+| `make db-migrate-dev`    | `.\make db-migrate-dev`     |
+| `make db-reset-dev`      | `.\make db-reset-dev`       |
+| `make prisma-studio-dev` | `.\make prisma-studio-dev`  |
+| `make db-only`           | `.\make db-only`            |
+| `make dev-setup`         | `.\make dev-setup`          |
+| `make dev-be`            | `.\make dev-be`             |
+| `make dev-fe`            | `.\make dev-fe`             |
+| `make migrate-local`     | `.\make migrate-local`      |
+| `make generate-local`    | `.\make generate-local`     |
+| `make seed-local`        | `.\make seed-local`         |
+| `make studio-local`      | `.\make studio-local`       |
+| `make help`              | `.\make help`               |
 
 ## トラブルシューティング
 
 ### 実行ポリシーのエラー
 
-PowerShellスクリプトを実行しようとして「スクリプトの実行が無効になっています」というエラーが出る場合：
+PowerShell スクリプトを実行しようとして「スクリプトの実行が無効になっています」というエラーが出る場合：
 
 ```powershell
 # 現在のポリシーを確認
@@ -148,9 +206,9 @@ netstat -ano | findstr :3001
 netstat -ano | findstr :5432
 ```
 
-### Dockerが起動していない
+### Docker が起動していない
 
-Docker Desktopが起動していることを確認してください。タスクバーのDockerアイコンを確認するか、以下で確認：
+Docker Desktop が起動していることを確認してください。タスクバーの Docker アイコンを確認するか、以下で確認：
 
 ```powershell
 docker --version
@@ -163,15 +221,14 @@ docker-compose --version
 
 ```powershell
 # 全コンテナのログ
-.\make-commands.ps1 logs
+.\make logs
 
 # 特定のコンテナのログ
-docker-compose logs backend
-docker-compose logs frontend
+.\make logs-be
+.\make logs-fe
 docker-compose logs db
 ```
 
 ## 詳細情報
 
 より詳しい情報は、メインの[README.md](./README.md)を参照してください。
-
