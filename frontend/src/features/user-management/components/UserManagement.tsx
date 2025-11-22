@@ -11,7 +11,6 @@ import {
   PlusIcon,
 } from "@/components/ui";
 import { useUserManagement } from "@/features/user-management/hooks/useUserManagement";
-import { formatDateToJST } from "@/libs/date-utils";
 import { roleLabelMap, genderLabelMap } from "../constants/user.constants";
 import { errorMessages } from "@/constants/error-messages";
 import { UserSearchForm } from "./UserSearchForm";
@@ -41,7 +40,6 @@ export const UserManagement = () => {
     { key: "name", label: "名前" },
     { key: "role", label: "権限" },
     { key: "gender", label: "性別" },
-    { key: "createdAt", label: "作成日時" },
     {
       key: "actions",
       label: "操作",
@@ -66,7 +64,6 @@ export const UserManagement = () => {
     name: `${user.lastName} ${user.firstName}`,
     role: roleLabelMap[user.role],
     gender: user.gender ? genderLabelMap[user.gender] : "-",
-    createdAt: formatDateToJST(user.createdAt),
   }));
 
   if (isLoading) {
