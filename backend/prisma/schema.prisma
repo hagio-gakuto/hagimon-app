@@ -20,7 +20,7 @@ enum Gender {
 }
 
 model User {
-  id          String   @id @default(cuid())
+  id          String   @id @default(ulid())
   email       String   @unique
   role        UserRole @default(user)
   firstName   String   @map("first_name")
@@ -42,12 +42,28 @@ model RecruitYear {
   createdBy   String   @map("created_by")
   updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
   updatedBy   String   @map("updated_by")
+  selectionProcesses SelectionProcess[]
 
   @@map("recruit_years")
 }
 
+model SelectionProcess {
+  id         String   @id @default(ulid())
+  name       String
+  order      Int
+  recruitYear Int     @map("recruit_year")
+  recruitYearRelation RecruitYear @relation(fields: [recruitYear], references: [recruitYear], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  createdBy  String   @map("created_by")
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  updatedBy  String   @map("updated_by")
+
+  @@unique([recruitYear, name], name: "recruitYear_name")
+  @@map("selection_processes")
+}
+
 model Outbox {
-  id        String   @id @default(cuid())
+  id        String   @id @default(ulid())
   eventType String   @map("event_type")
   payload   Json
   status    String   @default("pending") // pending, processed, failed
