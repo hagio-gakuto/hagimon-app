@@ -7,6 +7,7 @@ import { roleOptions, genderOptions } from "../constants/user.constants";
 import type { UserRole, Gender } from "@/types/user";
 
 type UserSearchFormData = {
+  id: string;
   search: string;
   role: UserRole | "";
   gender: Gender | "";
@@ -33,7 +34,7 @@ export const UserSearchForm = ({
   });
 
   const handleReset = () => {
-    methods.reset({ search: "", role: "", gender: "" });
+    methods.reset({ id: "", search: "", role: "", gender: "" });
     onReset();
   };
 
@@ -42,6 +43,13 @@ export const UserSearchForm = ({
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit} noValidate className="space-y-6">
           <div className="flex gap-4 items-end">
+            <div className="w-64">
+              <TextField
+                name="id"
+                label="ID"
+                placeholder="ID（カンマ/スペース区切り可）"
+              />
+            </div>
             <div className="flex-1">
               <TextField
                 name="search"

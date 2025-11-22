@@ -3,12 +3,14 @@ import { UserDao } from '../../dao/user/user.dao';
 import { UserResponseDto } from '../../dto/user-response.dto';
 import { UserListResponseDto } from '../../dto/user-list-response.dto';
 import { NotFoundError } from '../../../common/errors/not-found.error';
+import { splitIds } from '../../../common/utils/string.utils';
 import type { UserRole, Gender } from '../../types/user.types';
 import { User } from '@prisma/client';
 
 type FindManyParams = {
   page?: number;
   pageSize?: number;
+  id?: string;
   search?: string;
   role?: UserRole;
   gender?: Gender;
@@ -52,13 +54,18 @@ export class UserService {
   async findMany({
     page = 1,
     pageSize = 10,
+    id,
     search,
     role,
     gender,
   }: FindManyParams): Promise<UserListResponseDto> {
+    // ID文字列を配列に変換（カンマ/スペース区切り対応）
+    const ids = id ? splitIds(id) : undefined;
+
     const { users, total } = await this.userDao.findMany({
       page,
       pageSize,
+      ids,
       search,
       role,
       gender,
@@ -100,15 +107,21 @@ export class UserService {
   }
 
   async findManyForExport({
+    id,
     search,
     role,
     gender,
   }: {
+    id?: string;
     search?: string;
     role?: UserRole;
     gender?: Gender;
   }): Promise<UserResponseDto[]> {
+    // ID文字列を配列に変換（カンマ/スペース区切り対応）
+    const ids = id ? splitIds(id) : undefined;
+
     const users = await this.userDao.findManyForExport({
+      ids,
       search,
       role,
       gender,

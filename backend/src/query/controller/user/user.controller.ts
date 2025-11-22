@@ -21,7 +21,8 @@ export class UserController {
     @Query(new ZodValidationPipe(userExportQuerySchema))
     query: UserExportQueryDto,
   ): Promise<UserResponseDto[]> {
-    return this.userService.findManyForExport({
+    return await this.userService.findManyForExport({
+      id: query.id,
       search: query.search,
       role: query.role,
       gender: query.gender,
@@ -41,6 +42,7 @@ export class UserController {
     return this.userService.findMany({
       page: query.page,
       pageSize: query.pageSize,
+      id: query.id,
       search: query.search,
       role: query.role,
       gender: query.gender,

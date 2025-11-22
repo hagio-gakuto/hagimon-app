@@ -36,6 +36,7 @@ export const UserManagement = () => {
   } = useUserManagement();
 
   const columns = [
+    { key: "id", label: "ID" },
     { key: "email", label: "メールアドレス" },
     { key: "name", label: "名前" },
     { key: "role", label: "権限" },

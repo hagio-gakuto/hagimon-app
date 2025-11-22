@@ -10,6 +10,7 @@ export const userListQuerySchema = z.object({
     .string()
     .optional()
     .transform((val) => (val ? Number(val) : undefined)),
+  id: z.string().optional(),
   search: z.string().optional(),
   role: z.enum(['user', 'admin', 'master']).optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
@@ -18,6 +19,7 @@ export const userListQuerySchema = z.object({
 export type UserListQueryDto = {
   page?: number;
   pageSize?: number;
+  id?: string;
   search?: string;
   role?: UserRole;
   gender?: Gender;

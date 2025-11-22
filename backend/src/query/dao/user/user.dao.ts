@@ -8,6 +8,7 @@ type UserWithRelations = User;
 type FindManyParams = {
   page?: number;
   pageSize?: number;
+  ids?: string[];
   search?: string;
   role?: UserRole;
   gender?: Gender;
@@ -26,6 +27,7 @@ export class UserDao {
   async findMany({
     page = 1,
     pageSize = 10,
+    ids,
     search,
     role,
     gender,
@@ -35,6 +37,10 @@ export class UserDao {
   }> {
     const skip = (page - 1) * pageSize;
     const where: Prisma.UserWhereInput = {};
+
+    if (ids && ids.length > 0) {
+      where.id = { in: ids };
+    }
 
     if (search) {
       where.OR = [
@@ -68,15 +74,21 @@ export class UserDao {
   }
 
   async findManyForExport({
+    ids,
     search,
     role,
     gender,
   }: {
+    ids?: string[];
     search?: string;
     role?: UserRole;
     gender?: Gender;
   }): Promise<User[]> {
     const where: Prisma.UserWhereInput = {};
+
+    if (ids && ids.length > 0) {
+      where.id = { in: ids };
+    }
 
     if (search) {
       where.OR = [

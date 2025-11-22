@@ -28,6 +28,7 @@ import type {
 } from "@/types/user";
 
 type UserSearchFormData = {
+  id: string;
   search: string;
   role: UserRole | "";
   gender: Gender | "";
@@ -42,6 +43,7 @@ export const useUserManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useState<UserSearchFormData>({
+    id: "",
     search: "",
     role: "",
     gender: "",
@@ -60,6 +62,9 @@ export const useUserManagement = () => {
         pageSize: DEFAULT_PAGE_SIZE.toString(),
       });
 
+      if (searchParams.id) {
+        params.append("id", searchParams.id);
+      }
       if (searchParams.search) {
         params.append("search", searchParams.search);
       }
@@ -97,6 +102,7 @@ export const useUserManagement = () => {
 
   const handleReset = () => {
     setSearchParams({
+      id: "",
       search: "",
       role: "",
       gender: "",
@@ -115,6 +121,9 @@ export const useUserManagement = () => {
   const handleExportCSV = useCallback(async () => {
     try {
       const params = new URLSearchParams();
+      if (searchParams.id) {
+        params.append("id", searchParams.id);
+      }
       if (searchParams.search) {
         params.append("search", searchParams.search);
       }
