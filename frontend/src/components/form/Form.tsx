@@ -31,7 +31,8 @@ export const Form = <T extends FieldValues>({
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     methods.reset(defaultValues as any);
-  }, [defaultValues, methods]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValues]);
 
   return (
     <FormProvider {...methods}>

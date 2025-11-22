@@ -8,6 +8,24 @@ export type CsvHeader = {
 };
 
 /**
+ * CSVフィールドをエスケープ
+ */
+const escapeCsvField = (value: unknown): string => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  const stringValue = String(value);
+  if (
+    stringValue.includes('"') ||
+    stringValue.includes(",") ||
+    stringValue.includes("\n")
+  ) {
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  }
+  return stringValue;
+};
+
+/**
  * データをCSV形式の文字列に変換
  */
 export const convertToCSV = ({
@@ -15,32 +33,14 @@ export const convertToCSV = ({
   headers,
 }: {
   data: Record<string, unknown>[];
-  headers: { key: string; label: string }[];
+  headers: CsvHeader[];
 }): string => {
-  // ヘッダー行を作成
-  const headerRow = headers.map((h) => h.label).join(",");
+  // ヘッダー行を作成（エスケープ処理を追加）
+  const headerRow = headers.map((h) => escapeCsvField(h.label)).join(",");
 
   // データ行を作成
   const dataRows = data.map((row) => {
-    return headers
-      .map((header) => {
-        const value = row[header.key];
-        // 値がnullまたはundefinedの場合は空文字
-        if (value === null || value === undefined) {
-          return "";
-        }
-        // 文字列に変換し、ダブルクォート、カンマ、改行のいずれかを含む場合はダブルクォートで囲む
-        const stringValue = String(value);
-        if (
-          stringValue.includes('"') ||
-          stringValue.includes(",") ||
-          stringValue.includes("\n")
-        ) {
-          return `"${stringValue.replace(/"/g, '""')}"`;
-        }
-        return stringValue;
-      })
-      .join(",");
+    return headers.map((header) => escapeCsvField(row[header.key])).join(",");
   });
 
   // BOMを追加してExcelで文字化けしないようにする
