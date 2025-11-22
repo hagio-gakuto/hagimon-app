@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "../ui/Input";
+import { Input } from "../ui";
 import { FormField } from "./FormField";
 import { useFormContext, useFormState } from "react-hook-form";
 

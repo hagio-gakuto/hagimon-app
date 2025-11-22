@@ -1,9 +1,8 @@
 "use client";
 
-import { Select } from "../ui/Select";
+import { Select, type SelectOption } from "../ui";
 import { FormField } from "./FormField";
 import { useFormContext, useFormState } from "react-hook-form";
-import type { SelectOption } from "../ui/Select";
 
 type SelectFieldProps = {
   name: string;

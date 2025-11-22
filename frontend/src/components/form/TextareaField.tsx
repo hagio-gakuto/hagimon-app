@@ -1,6 +1,6 @@
 "use client";
 
-import { Textarea } from "../ui/Textarea";
+import { Textarea } from "../ui";
 import { FormField } from "./FormField";
 import { useFormContext, useFormState } from "react-hook-form";
 
